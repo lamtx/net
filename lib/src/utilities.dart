@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:async/async.dart';
+import 'package:net/net.dart';
 
 import 'copy_stream_listener.dart';
 
@@ -30,9 +31,8 @@ extension StreamExt on Stream<List<int>> {
       destination.add(data);
       await destination.flush();
       current += data.length;
-      final stop = listener?.call(current, total, false) ?? false;
-      if (stop) {
-        break;
+      if (listener?.call(current, total, false) ?? false) {
+        throw const CancellationException();
       }
     }
 
