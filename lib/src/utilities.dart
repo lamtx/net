@@ -30,7 +30,10 @@ extension StreamExt on Stream<List<int>> {
       destination.add(data);
       await destination.flush();
       current += data.length;
-      listener?.call(current, total, false);
+      final stop = listener?.call(current, total, false) ?? false;
+      if (stop) {
+        break;
+      }
     }
 
     listener?.call(current, total, true);
