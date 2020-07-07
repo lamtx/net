@@ -36,6 +36,7 @@ class NetworkService extends Repository {
         if (enableLog) {
           print("Response: $bodyString");
         }
+		return true;
       }());
       throw HttpStatusException(response.statusCode, bodyString);
     }
