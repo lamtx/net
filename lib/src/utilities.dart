@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:async/async.dart';
 import 'package:net/net.dart';
@@ -7,8 +8,8 @@ import 'package:net/net.dart';
 import 'copy_stream_listener.dart';
 
 extension StreamExt on Stream<List<int>> {
-  Future<List<int>> readAll() {
-    final completer = Completer<List<int>>();
+  Future<Uint8List> readAll() {
+    final completer = Completer<Uint8List>();
     final writer = BytesBuilder();
     listen(
       writer.add,

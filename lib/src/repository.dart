@@ -1,13 +1,33 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import "copy_stream_listener.dart";
 import "data_parser.dart";
+import 'debug.dart';
 import "service_builder.dart";
 
 abstract class Repository {
   const Repository();
 
-  Future<String> getString(Request builder, [CopyStreamListener listener]);
+  Future<Uint8List> getData(Request builder, [CopyStreamListener listener]);
 
-  Future<T> get<T>(Request builder, DataParser<T> parser, [CopyStreamListener listener]) async {
+  Future<String> getString(Request builder,
+      [CopyStreamListener listener]) async {
+    final body = await getData(builder, listener);
+    final bodyString = utf8.decode(body);
+
+    assert(() {
+      if (enableLog) {
+        print("Response: $bodyString");
+      }
+      return true;
+    }());
+
+    return bodyString;
+  }
+
+  Future<T> get<T>(Request builder, DataParser<T> parser,
+      [CopyStreamListener listener]) async {
     final response = await getString(builder, listener);
     if (response == null || response.isEmpty) {
       return null;
@@ -15,7 +35,8 @@ abstract class Repository {
     return parser.parseObject(response);
   }
 
-  Future<List<T>> getList<T>(Request builder, DataParser<T> parser, [CopyStreamListener listener]) async {
+  Future<List<T>> getList<T>(Request builder, DataParser<T> parser,
+      [CopyStreamListener listener]) async {
     final response = await getString(builder, listener);
     if (response == null || response.isEmpty) {
       return const [];

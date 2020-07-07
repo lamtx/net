@@ -1,6 +1,7 @@
 import "dart:async";
 import 'dart:convert';
 import "dart:io";
+import 'dart:typed_data';
 
 import "package:flutter/foundation.dart";
 import 'package:net/net.dart';
@@ -16,23 +17,26 @@ class NetworkService extends Repository {
   const NetworkService();
 
   @override
-  Future<String> getString(Request builder,
+  Future<Uint8List> getData(Request builder,
       [CopyStreamListener listener]) async {
     final response = await _makeConnection(builder, listener);
     final body = await response.readAll();
-    final bodyString = utf8.decode(body);
 
     assert(() {
       if (enableLog) {
         print("Status: ${response.statusCode}");
-        print("Response: $bodyString");
       }
       return true;
     }());
-
     if (200 <= response.statusCode && response.statusCode < 300) {
-      return bodyString;
+      return body;
     } else {
+      final bodyString = utf8.decode(body);
+      assert(() {
+        if (enableLog) {
+          print("Response: $bodyString");
+        }
+      }());
       throw HttpStatusException(response.statusCode, bodyString);
     }
   }
