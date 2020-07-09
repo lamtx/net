@@ -87,3 +87,10 @@ extension SerializableJson on Map<String, Object> {
     return convert.json.encode(dest);
   }
 }
+
+extension SerializableJsonList on List<Object> {
+  String serializeAsJson() {
+    final dest = _normalize(this);
+    return convert.json.encode(dest);
+  }
+}

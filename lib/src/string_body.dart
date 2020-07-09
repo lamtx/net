@@ -16,6 +16,10 @@ class StringBody implements Body {
     return StringBody(object.serializeAsJson(), ContentType.json);
   }
 
+  factory StringBody.jsonList(List<Object> object) {
+    return StringBody(object.serializeAsJson(), ContentType.json);
+  }
+
   factory StringBody.urlEncoded(Map<String, Object> params) {
     return StringBody(
       serializeUrlEncoded(params),

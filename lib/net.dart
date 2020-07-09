@@ -1,5 +1,6 @@
 library net;
 
+export 'src/body.dart';
 export "src/cancellation_exception.dart";
 export "src/copy_stream_listener.dart";
 export "src/credentials.dart";
@@ -14,3 +15,4 @@ export "src/json_reader.dart";
 export "src/network_service.dart";
 export "src/repository.dart";
 export "src/service_builder.dart";
+export 'src/string_body.dart';
