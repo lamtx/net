@@ -10,9 +10,14 @@ extension ParseData<T> on DataParser<T> {
   }
 
   T parseObject(String s) {
-    return this(JsonReader.decode(s));
+    final map = json.decode(s);
+    if (map is Map) {
+      return this(JsonReader(map));
+    } else {
+      throw Exception("The provided json is not a map.");
+    }
   }
-  
+
   T tryParseObject(String s) {
     try {
       return parseObject(s);
@@ -22,14 +27,15 @@ extension ParseData<T> on DataParser<T> {
   }
 
   List<T> parseList(String s) {
-    final array = json.decode(s) as List;
-    final result = List<T>(array.length);
-
-    var i = 0;
-    for (final e in array) {
-      result[i++] = this(JsonReader(e as Map));
+    final array = json.decode(s);
+    if (array is List) {
+      return parseJsonList(array);
+    } else {
+      throw Exception("The provided json is not a list.");
     }
+  }
 
-    return result;
+  List<T> parseJsonList(List<dynamic> array) {
+    return array.whereType<Map>().map((e) => this(JsonReader(e))).toList();
   }
 }

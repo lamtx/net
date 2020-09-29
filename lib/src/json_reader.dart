@@ -8,8 +8,6 @@ import "data_parser.dart";
 class JsonReader {
   const JsonReader(Map<dynamic, dynamic> json) : _json = json;
 
-  JsonReader.decode(String s) : this(json.decode(s) as Map<dynamic, dynamic>);
-
   final Map<dynamic, dynamic> _json;
 
   bool hasField(String name) => _json.containsKey(name);
