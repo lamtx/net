@@ -9,10 +9,10 @@ import "service_builder.dart";
 abstract class Repository {
   const Repository();
 
-  Future<Uint8List> getData(Request builder, [CopyStreamListener listener]);
+  Future<Uint8List> getData(Request builder, [CopyStreamListener? listener]);
 
   Future<String> getString(Request builder,
-      [CopyStreamListener listener]) async {
+      [CopyStreamListener? listener]) async {
     final body = await getData(builder, listener);
     final bodyString = utf8.decode(body);
 
@@ -27,18 +27,18 @@ abstract class Repository {
   }
 
   Future<T> get<T>(Request builder, DataParser<T> parser,
-      [CopyStreamListener listener]) async {
+      [CopyStreamListener? listener]) async {
     final response = await getString(builder, listener);
-    if (response == null || response.isEmpty) {
-      return null;
+    if (response.isEmpty) {
+      throw StateError("empty response");
     }
     return parser.parseObject(response);
   }
 
   Future<List<T>> getList<T>(Request builder, DataParser<T> parser,
-      [CopyStreamListener listener]) async {
+      [CopyStreamListener? listener]) async {
     final response = await getString(builder, listener);
-    if (response == null || response.isEmpty) {
+    if (response.isEmpty) {
       return const [];
     }
     return parser.parseList(response);

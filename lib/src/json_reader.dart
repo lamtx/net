@@ -1,15 +1,13 @@
 import "dart:convert";
 import "dart:typed_data";
 
-import 'package:flutter/foundation.dart';
-
 import "data_parser.dart";
 
 class JsonReader {
-  const JsonReader(Map<dynamic, dynamic> json) : _json = json;
+  const JsonReader(Map json) : _json = json;
 
   factory JsonReader.decode(String s) {
-    final map = json.decode(s);
+    final dynamic map = json.decode(s);
     if (map is Map) {
       return JsonReader(map);
     } else {
@@ -17,27 +15,27 @@ class JsonReader {
     }
   }
 
-  final Map<dynamic, dynamic> _json;
+  final Map _json;
 
   bool hasField(String name) => _json.containsKey(name);
 
-  Object _get(String name) => _json[name];
+  Object? _get(String name) => _json[name];
 
   String readString(String name) => _parseString(_get(name));
 
   int readInt(String name) => _parseInt(_get(name)) ?? 0;
 
-  int readNullableInt(String name) => _parseInt(_get(name));
+  int? readNullableInt(String name) => _parseInt(_get(name));
 
   double readDouble(String name) => _parseDouble(_get(name)) ?? 0;
 
-  double readNullableDouble(String name) => _parseDouble(_get(name));
+  double? readNullableDouble(String name) => _parseDouble(_get(name));
 
   bool get isEmpty => _json.isEmpty;
 
   int get length => _json.length;
 
-  String _parseString(Object obj) {
+  String _parseString(Object? obj) {
     if (obj == null) {
       return "";
     }
@@ -47,7 +45,7 @@ class JsonReader {
     return obj.toString();
   }
 
-  int _parseInt(Object obj) {
+  int? _parseInt(Object? obj) {
     if (obj == null) {
       // ignore: avoid_returning_null
       return null;
@@ -58,7 +56,7 @@ class JsonReader {
     return int.tryParse(obj.toString());
   }
 
-  double _parseDouble(Object obj) {
+  double? _parseDouble(Object? obj) {
     if (obj == null) {
       // ignore: avoid_returning_null
       return null;
@@ -80,9 +78,9 @@ class JsonReader {
     return false;
   }
 
-  DateTime readDate(String name) {
+  DateTime? readDate(String name) {
     final s = readString(name);
-    if (s == null || s.isEmpty) {
+    if (s.isEmpty) {
       return null;
     }
     try {
@@ -99,18 +97,13 @@ class JsonReader {
         return const [];
       }
 
-      final result = List<E>(array.length);
-      var i = 0;
-
-      for (final e in array) {
+      return array.map((dynamic e) {
         if (e is Map) {
-          result[i++] = parser(JsonReader(e));
+          return parser(JsonReader(e));
         } else {
-          assert(false, "Element of list is not an object");
-          return const [];
+          throw Exception("Element of list is not an object");
         }
-      }
-      return result;
+      }).toList(growable: false);
     }
     return const [];
   }
@@ -118,7 +111,9 @@ class JsonReader {
   List<double> readDoubleList(String name) {
     final array = _get(name);
     if (array is List) {
-      return array.map(_parseDouble).toList(growable: false);
+      return array
+          .map((dynamic e) => _parseDouble(e) ?? 0)
+          .toList(growable: false);
     }
 
     return const [];
@@ -127,7 +122,9 @@ class JsonReader {
   List<int> readIntList(String name) {
     final array = _get(name);
     if (array is List) {
-      return array.map(_parseInt).toList(growable: false);
+      return array
+          .map((dynamic e) => _parseInt(e) ?? 0)
+          .toList(growable: false);
     }
 
     return const [];
@@ -142,26 +139,26 @@ class JsonReader {
     return const [];
   }
 
-  List<dynamic> readListAny(String name) {
+  List<Object?> readListAny(String name) {
     final array = _get(name);
 
     if (array is List) {
-      return array;
+      return array.cast();
     }
-    return const <dynamic>[];
+    return const [];
   }
 
-  T readObject<T>(DataParser<T> parser, String name) {
+  T? readObject<T>(DataParser<T> parser, String name) {
     final data = _get(name);
-    if (data is Map<dynamic, dynamic>) {
+    if (data is Map) {
       return parser(JsonReader(data));
     }
     return null;
   }
 
-  JsonReader readAny(String name) {
+  JsonReader? readAny(String name) {
     final data = _get(name);
-    if (data is Map<dynamic, dynamic>) {
+    if (data is Map) {
       return JsonReader(data);
     }
     return null;
@@ -173,7 +170,7 @@ class JsonReader {
     }).toList(growable: false);
   }
 
-  Map<dynamic, dynamic> readMap(String name) {
+  Map? readMap(String name) {
     final data = _get(name);
     if (data is Map<dynamic, dynamic>) {
       return data;
@@ -183,19 +180,11 @@ class JsonReader {
 }
 
 extension JsonReaderExt on JsonReader {
-  Uint8List readBase64(String name) {
-    final v = readString(name);
-    if (v == null) {
-      return null;
-    }
-    return base64.decode(v);
-  }
-
-  T readEnum<T>(String name, List<T> enums) {
+  Uint8List? readBase64(String name) {
     final v = readString(name);
     if (v.isEmpty) {
       return null;
     }
-    return enums.firstWhere((e) => describeEnum(e) == v, orElse: () => null);
+    return base64.decode(v);
   }
 }

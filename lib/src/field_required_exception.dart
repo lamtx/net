@@ -6,3 +6,5 @@ class FieldRequiredException implements Exception {
   @override
   String toString() => "$field is required";
 }
+
+Never requiredField(String name) => throw FieldRequiredException(name);

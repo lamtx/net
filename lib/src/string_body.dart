@@ -1,26 +1,25 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:http/http.dart';
+import 'package:http/http.dart' show ByteStream;
 
 import 'body.dart';
 import 'json_object.dart';
 
 class StringBody implements Body {
   StringBody(String content, this.contentType)
-      : assert(content != null && content.isNotEmpty),
-        assert(contentType != null),
+      : assert(content.isNotEmpty),
         _data = getEncoding(contentType).encode(content);
 
-  factory StringBody.json(Map<String, Object> object) {
+  factory StringBody.json(Map<String, Object?> object) {
     return StringBody(object.serializeAsJson(), ContentType.json);
   }
 
-  factory StringBody.jsonList(List<Object> object) {
+  factory StringBody.jsonList(List<Object?> object) {
     return StringBody(object.serializeAsJson(), ContentType.json);
   }
 
-  factory StringBody.urlEncoded(Map<String, Object> params) {
+  factory StringBody.urlEncoded(Map<String, Object?> params) {
     return StringBody(
       serializeUrlEncoded(params),
       ContentType.parse("application/x-www-form-urlencoded"),
@@ -42,18 +41,19 @@ class StringBody implements Body {
   @override
   String toString() => utf8.decode(_data);
 
-  static Encoding getEncoding(ContentType contentType) {
-    String charset;
+  static Encoding getEncoding(ContentType? contentType) {
+    String? charset;
     if (contentType != null && contentType.charset != null) {
       charset = contentType.charset;
     } else {
       charset = "iso-8859-1";
     }
-    return Encoding.getByName(charset);
+    return Encoding.getByName(charset) ??
+        (throw Exception("Unknown charset $charset"));
   }
 }
 
-String serializeUrlEncoded(Map<String, Object> params) {
+String serializeUrlEncoded(Map<String, Object?> params) {
   final s = StringBuffer();
   params.forEach((key, value) {
     if (value == null) {
@@ -72,7 +72,7 @@ String serializeUrlEncoded(Map<String, Object> params) {
     } else if (value is DateTime) {
       sValue = value.toUtc().toIso8601String();
     } else {
-      throw UnsupportedError("Unsupport parameter type ${value.runtimeType}");
+      throw UnsupportedError("Unsupported parameter type ${value.runtimeType}");
     }
 
     if (s.isNotEmpty) {

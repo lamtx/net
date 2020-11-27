@@ -3,7 +3,7 @@ description: Http, network and json.
 version: 1.0.0
 
 environment:
-  sdk: '>=2.6.0 <3.0.0'
+  sdk: ^2.12.0-0
   # The example interacts with build scripts on the Flutter side that are not
   # yet stable, so it requires a very recent version of Flutter.
   # This version will increase regularly as the build scripts change.
@@ -12,8 +12,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  http: any
   async: any
+  http: any
 
 dev_dependencies:
   flutter_test:

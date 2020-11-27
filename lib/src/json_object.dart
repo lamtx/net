@@ -6,7 +6,7 @@ abstract class JsonObject {
   Object describeContent();
 }
 
-Object _normalize(Object value) {
+Object? _normalize(Object? value) {
   assert(value == null ||
       value is num ||
       value is String ||
@@ -31,9 +31,9 @@ Object _normalize(Object value) {
     return value.toJson();
   }
 
-  if (value is Map<dynamic, dynamic>) {
+  if (value is Map) {
     final dest = <String, Object>{};
-    value.forEach((k, v) {
+    value.forEach((dynamic k, dynamic v) {
       if (k is String) {
         final normalized = _normalize(v);
         if (normalized != null) {
@@ -47,7 +47,7 @@ Object _normalize(Object value) {
     return dest;
   }
 
-  if (value is List<dynamic>) {
+  if (value is List) {
     final dest = <Object>[];
     for (final e in value) {
       final normalized = _normalize(e);
@@ -62,7 +62,7 @@ Object _normalize(Object value) {
 }
 
 extension SerializableObject on JsonObject {
-  Object toJson() {
+  Object? toJson() {
     return _normalize(describeContent());
   }
 
@@ -71,24 +71,24 @@ extension SerializableObject on JsonObject {
   }
 }
 
-extension SerializableListObject<T extends JsonObject> on List<T> {
+extension SerializableListObject on List<JsonObject?> {
   String serializeAsJson() {
     return convert.json.encode(toJson());
   }
 
-  List<Object> toJson() {
+  List<Object?> toJson() {
     return map((e) => e?.toJson()).toList(growable: false);
   }
 }
 
-extension SerializableJson on Map<String, Object> {
+extension SerializableJson on Map<String, Object?> {
   String serializeAsJson() {
     final dest = _normalize(this);
     return convert.json.encode(dest);
   }
 }
 
-extension SerializableJsonList on List<Object> {
+extension SerializableJsonList on List<Object?> {
   String serializeAsJson() {
     final dest = _normalize(this);
     return convert.json.encode(dest);

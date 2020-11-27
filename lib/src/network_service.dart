@@ -4,8 +4,8 @@ import "dart:io";
 import 'dart:typed_data';
 
 import "package:flutter/foundation.dart";
-import 'package:net/net.dart';
 
+import 'cancellation_exception.dart';
 import "copy_stream_listener.dart";
 import "debug.dart";
 import "http_status_exception.dart";
@@ -18,7 +18,7 @@ class NetworkService extends Repository {
 
   @override
   Future<Uint8List> getData(Request builder,
-      [CopyStreamListener listener]) async {
+      [CopyStreamListener? listener]) async {
     final response = await _makeConnection(builder, listener);
     final body = await response.readAll();
 
@@ -43,7 +43,7 @@ class NetworkService extends Repository {
   }
 
   Future<void> download(Request builder, File file,
-      [CopyStreamListener listener]) async {
+      [CopyStreamListener? listener]) async {
     final response = await _makeConnection(builder);
     final length = response.contentLength;
     final completer = Completer<void>();
@@ -64,17 +64,16 @@ class NetworkService extends Repository {
       listener?.call(count, length, true);
       sink.close();
       completer.complete();
-      // ignore: inference_failure_on_untyped_parameter
-    }, onError: (e) {
+    }, onError: (dynamic e) {
       sink.close();
-      completer.completeError(e);
+      completer.completeError(e as Object);
     }, cancelOnError: true);
 
     return completer.future;
   }
 
   Future<HttpClientResponse> _makeConnection(Request builder,
-      [CopyStreamListener listener]) async {
+      [CopyStreamListener? listener]) async {
     final uri = Uri.parse(builder.fullUrl);
     final client = HttpClient();
 
@@ -120,16 +119,17 @@ class NetworkService extends Repository {
   }
 
   Future<void> _writeContent(HttpClientRequest request, Request builder,
-      CopyStreamListener listener) async {
-    if (builder.body == null) {
-      return Future.value();
+      CopyStreamListener? listener) async {
+    final body = builder.body;
+    if (body == null) {
+      return;
     }
-    request.headers.contentType = builder.body.contentType;
+    request.headers.contentType = body.contentType;
 
-    final content = builder.body.content;
-    final contentLength = builder.body.length;
+    final content = body.content;
+    final contentLength = body.length;
     assert(() {
-      print("Body: ${builder.body}");
+      print("Body: $body");
       return true;
     }());
     if (contentLength > 0) {
@@ -138,11 +138,11 @@ class NetworkService extends Repository {
     if (listener == null) {
       return request.addStream(content);
     } else {
-      return content.copyTo(request, listener, builder.body.length);
+      return content.copyTo(request, listener, body.length);
     }
   }
 }
 
 class _Ref<T> {
-  T value;
+  late T value;
 }

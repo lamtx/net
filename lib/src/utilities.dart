@@ -3,8 +3,8 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:async/async.dart';
-import 'package:net/net.dart';
 
+import 'cancellation_exception.dart';
 import 'copy_stream_listener.dart';
 
 extension StreamExt on Stream<List<int>> {
@@ -23,7 +23,7 @@ extension StreamExt on Stream<List<int>> {
   }
 
   Future<void> copyTo(IOSink destination,
-      [CopyStreamListener listener, int estimatedLength]) async {
+      [CopyStreamListener? listener, int? estimatedLength]) async {
     var current = 0;
     final total = estimatedLength ?? -1;
     final queue = StreamQueue(this);

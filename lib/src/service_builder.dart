@@ -1,28 +1,29 @@
 import 'body.dart';
 import "credentials.dart";
 import 'string_body.dart';
+import 'utilities.dart';
 
 enum HttpMethod { get, post, put, patch, head, delete }
 
 class Request {
   Request({
-    this.url,
-    this.method,
+    required this.url,
+    required this.method,
     this.body,
     this.params,
-    this.headers,
+    required this.headers,
     this.credentials,
   });
 
   final String url;
   final HttpMethod method;
-  final Body body;
-  final String params;
+  final Body? body;
+  final String? params;
   final Map<String, String> headers;
-  final Credentials credentials;
+  final Credentials? credentials;
 
   String get fullUrl {
-    if (params == null || params.isEmpty) {
+    if (params?.isEmpty ?? true) {
       return url;
     } else {
       if (url.contains('?')) {
@@ -39,10 +40,10 @@ class RequestBuilder {
 
   final String _url;
   HttpMethod _method = HttpMethod.get;
-  Body _body;
-  String _params;
+  Body? _body;
+  String? _params;
   final Map<String, String> _headers = {};
-  Credentials _credentials;
+  Credentials? _credentials;
 
   RequestBuilder authorize(Credentials credentials) {
     _credentials = credentials;
@@ -54,17 +55,17 @@ class RequestBuilder {
     return this;
   }
 
-  RequestBuilder jsonBody(Map<String, Object> object) {
+  RequestBuilder jsonBody(Map<String, Object?> object) {
     _body = StringBody.json(object);
     return this;
   }
 
-  RequestBuilder urlEncodedBody(Map<String, Object> object) {
+  RequestBuilder urlEncodedBody(Map<String, Object?> object) {
     _body = StringBody.urlEncoded(object);
     return this;
   }
 
-  RequestBuilder params(Map<String, Object> params) {
+  RequestBuilder params(Map<String, Object?> params) {
     _params = serializeUrlEncoded(params);
     return this;
   }
