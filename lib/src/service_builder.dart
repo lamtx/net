@@ -45,12 +45,12 @@ class RequestBuilder {
   final Map<String, String> _headers = {};
   Credentials? _credentials;
 
-  RequestBuilder authorize(Credentials credentials) {
+  RequestBuilder authorize(Credentials? credentials) {
     _credentials = credentials;
     return this;
   }
 
-  RequestBuilder body(Body body) {
+  RequestBuilder body(Body? body) {
     _body = body;
     return this;
   }
