@@ -1,7 +1,6 @@
 import 'body.dart';
 import "credentials.dart";
 import 'string_body.dart';
-import 'utilities.dart';
 
 enum HttpMethod { get, post, put, patch, head, delete }
 
@@ -44,6 +43,8 @@ class RequestBuilder {
   String? _params;
   final Map<String, String> _headers = {};
   Credentials? _credentials;
+
+  Credentials? get credentials => _credentials;
 
   RequestBuilder authorize(Credentials? credentials) {
     _credentials = credentials;

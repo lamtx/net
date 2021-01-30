@@ -165,9 +165,16 @@ class JsonReader {
   }
 
   List<JsonReader> readArray(String name) {
-    return readListAny(name).map((e) {
-      return JsonReader(e as Map);
-    }).toList(growable: false);
+    final array = _get(name);
+
+    if (array is List) {
+      return array
+          .map((dynamic e) => e is Map
+              ? JsonReader(e)
+              : (throw Exception("$name is not a list of dictionary")))
+          .toList(growable: false);
+    }
+    return const [];
   }
 
   Map? readMap(String name) {
