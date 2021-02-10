@@ -40,3 +40,9 @@ extension StreamExt on Stream<List<int>> {
     listener?.call(current, total, true);
   }
 }
+
+String describeEnum(Object any) {
+  final s = any.toString();
+  final index = s.indexOf(".");
+  return index == -1 ? s : s.substring(index + 1);
+}

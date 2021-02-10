@@ -3,8 +3,6 @@ import 'dart:convert';
 import "dart:io";
 import 'dart:typed_data';
 
-import "package:flutter/foundation.dart";
-
 import 'cancellation_exception.dart';
 import "copy_stream_listener.dart";
 import "debug.dart";
