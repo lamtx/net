@@ -21,7 +21,8 @@ class JsonReader {
 
   Object? _get(String name) => _json[name];
 
-  String readString(String name) => _parseString(_get(name));
+  String readString(String name, [String? defValue]) =>
+      _parseString(_get(name), defValue);
 
   int readInt(String name) => _parseInt(_get(name)) ?? 0;
 
@@ -35,9 +36,9 @@ class JsonReader {
 
   int get length => _json.length;
 
-  String _parseString(Object? obj) {
+  String _parseString(Object? obj, [String? defValue]) {
     if (obj == null) {
-      return "";
+      return defValue ?? "";
     }
     if (obj is String) {
       return obj;
