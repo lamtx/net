@@ -178,12 +178,12 @@ class JsonReader {
     return const [];
   }
 
-  Map? readMap(String name) {
+  Map<String, Object?> readMap(String name) {
     final data = _get(name);
-    if (data is Map<dynamic, dynamic>) {
-      return data;
+    if (data is Map) {
+      return data.cast();
     }
-    return null;
+    return const {};
   }
 }
 
