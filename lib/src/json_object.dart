@@ -1,5 +1,7 @@
 import "dart:convert" as convert;
 
+import 'utilities.dart';
+
 abstract class JsonObject {
   ///
   /// JsonObject accepts [String], [num], [bool], [DateTime], List or Map of primitive type
@@ -68,6 +70,15 @@ extension SerializableObject on JsonObject {
 
   String serializeAsJson() {
     return convert.json.encode(toJson());
+  }
+
+  String serializeAsUrlEncoded() {
+    final json = toJson();
+    if (json is Map) {
+      return toUrlEncoded(json);
+    } else {
+      throw UnsupportedError("Not is a map");
+    }
   }
 }
 

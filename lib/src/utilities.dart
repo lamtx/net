@@ -46,3 +46,39 @@ String describeEnum(Object any) {
   final index = s.indexOf(".");
   return index == -1 ? s : s.substring(index + 1);
 }
+
+String toUrlEncoded(Map params) {
+  final s = StringBuffer();
+  params.forEach((dynamic key, dynamic value) {
+    if (key is! String) {
+      throw UnsupportedError("key must be a string");
+    }
+    if (value == null) {
+      return;
+    }
+    String sValue;
+    if (value is String) {
+      if (value.isEmpty) {
+        return;
+      }
+      sValue = value;
+    } else if (value is num) {
+      sValue = value.toString();
+    } else if (value is bool) {
+      sValue = value.toString();
+    } else if (value is DateTime) {
+      sValue = value.toUtc().toIso8601String();
+    } else {
+      throw UnsupportedError("Unsupported parameter type ${value.runtimeType}");
+    }
+
+    if (s.isNotEmpty) {
+      s.write("&");
+    }
+    s
+      ..write(Uri.encodeComponent(key))
+      ..write("=")
+      ..write(Uri.encodeComponent(sValue));
+  });
+  return s.toString();
+}

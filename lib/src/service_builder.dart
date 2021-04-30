@@ -1,6 +1,7 @@
 import 'body.dart';
 import "credentials.dart";
 import 'string_body.dart';
+import 'utilities.dart';
 
 enum HttpMethod { get, post, put, patch, head, delete }
 
@@ -67,7 +68,7 @@ class RequestBuilder {
   }
 
   RequestBuilder params(Map<String, Object?> params) {
-    _params = serializeUrlEncoded(params);
+    _params = toUrlEncoded(params);
     return this;
   }
 

@@ -5,6 +5,7 @@ import 'package:http/http.dart' show ByteStream;
 
 import 'body.dart';
 import 'json_object.dart';
+import 'utilities.dart';
 
 class StringBody implements Body {
   StringBody(String content, this.contentType)
@@ -21,7 +22,7 @@ class StringBody implements Body {
 
   factory StringBody.urlEncoded(Map<String, Object?> params) {
     return StringBody(
-      serializeUrlEncoded(params),
+      toUrlEncoded(params),
       ContentType.parse("application/x-www-form-urlencoded"),
     );
   }
@@ -51,37 +52,4 @@ class StringBody implements Body {
     return Encoding.getByName(charset) ??
         (throw Exception("Unknown charset $charset"));
   }
-}
-
-String serializeUrlEncoded(Map<String, Object?> params) {
-  final s = StringBuffer();
-  params.forEach((key, value) {
-    if (value == null) {
-      return;
-    }
-    String sValue;
-    if (value is String) {
-      if (value.isEmpty) {
-        return;
-      }
-      sValue = value;
-    } else if (value is num) {
-      sValue = value.toString();
-    } else if (value is bool) {
-      sValue = value.toString();
-    } else if (value is DateTime) {
-      sValue = value.toUtc().toIso8601String();
-    } else {
-      throw UnsupportedError("Unsupported parameter type ${value.runtimeType}");
-    }
-
-    if (s.isNotEmpty) {
-      s.write("&");
-    }
-    s
-      ..write(Uri.encodeComponent(key))
-      ..write("=")
-      ..write(Uri.encodeComponent(sValue));
-  });
-  return s.toString();
 }
