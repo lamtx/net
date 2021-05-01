@@ -4,8 +4,8 @@ import 'utilities.dart';
 
 abstract class JsonObject {
   ///
-  /// JsonObject accepts [String], [num], [bool], [DateTime], List or Map of primitive type
-  Object describeContent();
+  /// JsonObject accepts [String], [num], [bool], [DateTime], [Null], [List] or [Map] of primitive type
+  Object? describeContent();
 }
 
 Object? _normalize(Object? value) {
