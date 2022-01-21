@@ -95,7 +95,7 @@ class JsonReader {
     final array = _get(name);
     if (array is List) {
       if (array.isEmpty) {
-        return const [];
+        return [];
       }
 
       return array.map((dynamic e) {
@@ -106,7 +106,7 @@ class JsonReader {
         }
       }).toList(growable: false);
     }
-    return const [];
+    return [];
   }
 
   List<double> readDoubleList(String name) {

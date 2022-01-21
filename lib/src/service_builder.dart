@@ -8,22 +8,53 @@ enum HttpMethod { get, post, put, patch, head, delete }
 class Request {
   Request({
     required this.url,
-    required this.method,
-    this.body,
-    this.params,
-    required this.headers,
+    this.method = HttpMethod.get,
     this.credentials,
+    this.params = "",
+    this.headers = const {},
+    this.body,
   });
+
+  factory Request.get({
+    required String url,
+    Credentials? credentials,
+    Map<String, Object?> params = const {},
+    Map<String, String> headers = const {},
+    Body? body,
+  }) =>
+      Request(
+        url: url,
+        credentials: credentials,
+        params: stringParams(params),
+        headers: headers,
+        body: body,
+      );
+
+  factory Request.post({
+    required String url,
+    Credentials? credentials,
+    Map<String, Object?> params = const {},
+    Map<String, String> headers = const {},
+    Body? body,
+  }) =>
+      Request(
+        url: url,
+        method: HttpMethod.post,
+        credentials: credentials,
+        params: stringParams(params),
+        headers: headers,
+        body: body,
+      );
 
   final String url;
   final HttpMethod method;
   final Body? body;
-  final String? params;
+  final String params;
   final Map<String, String> headers;
   final Credentials? credentials;
 
   String get fullUrl {
-    if (params?.isEmpty ?? true) {
+    if (params.isEmpty) {
       return url;
     } else {
       if (url.contains('?')) {
@@ -41,7 +72,7 @@ class RequestBuilder {
   final String _url;
   HttpMethod _method = HttpMethod.get;
   Body? _body;
-  String? _params;
+  String _params = "";
   final Map<String, String> _headers = {};
   Credentials? _credentials;
 
@@ -92,4 +123,8 @@ class RequestBuilder {
       credentials: _credentials,
     );
   }
+}
+
+String stringParams(Map<String, Object?> params) {
+  return toUrlEncoded(params);
 }
