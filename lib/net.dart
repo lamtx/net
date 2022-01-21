@@ -14,5 +14,7 @@ export "src/json_reader.dart";
 export "src/json_reader.dart";
 export "src/network_service.dart";
 export "src/repository.dart";
-export "src/service_builder.dart";
+export 'src/request.dart';
+export 'src/request_ext.dart';
+export 'src/service_builder.dart';
 export 'src/string_body.dart';

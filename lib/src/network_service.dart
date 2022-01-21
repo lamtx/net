@@ -6,18 +6,19 @@ import 'dart:typed_data';
 import 'cancellation_exception.dart';
 import "copy_stream_listener.dart";
 import "debug.dart";
+import 'http_method.dart';
 import "http_status_exception.dart";
 import "repository.dart";
-import "service_builder.dart";
+import 'request.dart';
 import "utilities.dart";
 
 class NetworkService extends Repository {
   const NetworkService();
 
   @override
-  Future<Uint8List> getData(Request builder,
+  Future<Uint8List> getData(Request request,
       [CopyStreamListener? listener]) async {
-    final response = await _makeConnection(builder, listener);
+    final response = await _makeConnection(request, listener);
     final body = await response.readAll();
 
     assert(() {
@@ -40,9 +41,9 @@ class NetworkService extends Repository {
     }
   }
 
-  Future<void> download(Request builder, File file,
+  Future<void> download(Request request, File file,
       [CopyStreamListener? listener]) async {
-    final response = await _makeConnection(builder);
+    final response = await _makeConnection(request);
     final length = response.contentLength;
     final completer = Completer<void>();
     final sink = file.openWrite(mode: FileMode.writeOnly);
@@ -70,30 +71,30 @@ class NetworkService extends Repository {
     return completer.future;
   }
 
-  Future<HttpClientResponse> _makeConnection(Request builder,
+  Future<HttpClientResponse> _makeConnection(Request request,
       [CopyStreamListener? listener]) async {
-    final uri = Uri.parse(builder.fullUrl);
+    final uri = Uri.parse(request.fullUrl);
     final client = HttpClient();
 
-    HttpClientRequest request;
-    switch (builder.method) {
+    HttpClientRequest httpRequest;
+    switch (request.method) {
       case HttpMethod.get:
-        request = await client.getUrl(uri);
+        httpRequest = await client.getUrl(uri);
         break;
       case HttpMethod.post:
-        request = await client.postUrl(uri);
+        httpRequest = await client.postUrl(uri);
         break;
       case HttpMethod.patch:
-        request = await client.patchUrl(uri);
+        httpRequest = await client.patchUrl(uri);
         break;
       case HttpMethod.put:
-        request = await client.putUrl(uri);
+        httpRequest = await client.putUrl(uri);
         break;
       case HttpMethod.head:
-        request = await client.headUrl(uri);
+        httpRequest = await client.headUrl(uri);
         break;
       case HttpMethod.delete:
-        request = await client.deleteUrl(uri);
+        httpRequest = await client.deleteUrl(uri);
         break;
       default:
         throw FallThroughError();
@@ -101,19 +102,19 @@ class NetworkService extends Repository {
 
     assert(() {
       if (enableLog) {
-        print("${describeEnum(builder.method).toUpperCase()}: $uri");
-        print("Headers: ${builder.headers}");
-        print("Credentials: ${builder.credentials}");
+        print("${describeEnum(request.method).toUpperCase()}: $uri");
+        print("Headers: ${request.headers}");
+        print("Credentials: ${request.credentials}");
       }
       return true;
     }());
 
-    builder.headers.forEach((key, value) {
-      request.headers.add(key, value);
+    request.headers.forEach((key, value) {
+      httpRequest.headers.add(key, value);
     });
-    builder.credentials?.handleRequest(request.headers);
-    await _writeContent(request, builder, listener);
-    return request.close();
+    request.credentials?.handleRequest(httpRequest.headers);
+    await _writeContent(httpRequest, request, listener);
+    return httpRequest.close();
   }
 
   Future<void> _writeContent(HttpClientRequest request, Request builder,
