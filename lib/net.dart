@@ -8,6 +8,7 @@ export "src/data_parser.dart";
 export "src/debug.dart";
 export "src/field_required_exception.dart";
 export "src/file_body.dart";
+export 'src/http_method.dart';
 export "src/http_status_exception.dart";
 export "src/json_object.dart";
 export "src/json_reader.dart";
