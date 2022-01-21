@@ -12,7 +12,6 @@ export 'src/http_method.dart';
 export "src/http_status_exception.dart";
 export "src/json_object.dart";
 export "src/json_reader.dart";
-export "src/json_reader.dart";
 export "src/network_service.dart";
 export "src/repository.dart";
 export 'src/request.dart';
