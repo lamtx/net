@@ -4,7 +4,7 @@ import 'utilities.dart';
 
 abstract class JsonObject {
   ///
-  /// JsonObject accepts [String], [num], [bool], [DateTime], [Null], [List] or [Map] of primitive type
+  /// JsonObject accepts [String], [num], [bool], [DateTime], [Enum], [Null], [List] or [Map] of primitive type
   Object? describeContent();
 }
 
@@ -16,7 +16,8 @@ Object? _normalize(Object? value) {
       value is DateTime ||
       value is JsonObject ||
       value is List<dynamic> ||
-      value is Map<dynamic, dynamic>);
+      value is Map<dynamic, dynamic> ||
+      value is Enum);
 
   if (value == null || value is num || value is String || value is bool) {
     return value;
@@ -27,6 +28,10 @@ Object? _normalize(Object? value) {
 
   if (value is JsonObject) {
     return _normalize(value.describeContent());
+  }
+
+  if (value is Enum) {
+    return value.index;
   }
 
   if (value is List<JsonObject>) {

@@ -16,7 +16,15 @@ class StringBody implements Body {
     return StringBody(object.serializeAsJson(), ContentType.json);
   }
 
+  factory StringBody.object(JsonObject object) {
+    return StringBody(object.serializeAsJson(), ContentType.json);
+  }
+
   factory StringBody.jsonList(List<Object?> object) {
+    return StringBody(object.serializeAsJson(), ContentType.json);
+  }
+
+  factory StringBody.list(List<JsonObject> object) {
     return StringBody(object.serializeAsJson(), ContentType.json);
   }
 

@@ -195,4 +195,14 @@ extension JsonReaderExt on JsonReader {
     }
     return base64.decode(v);
   }
+
+  T readEnum<T extends Enum>(List<T> values, String name,
+      [T Function()? orElse]) {
+    final index = readNullableInt("name");
+    if (index == null || index <= 0 || index >= values.length) {
+      return orElse == null ? values.first : orElse();
+    } else {
+      return values[index];
+    }
+  }
 }
