@@ -68,6 +68,8 @@ String toUrlEncoded(Map params) {
       sValue = value.toString();
     } else if (value is DateTime) {
       sValue = value.toUtc().toIso8601String();
+    } else if (value is Enum) {
+      sValue = value.index.toString();
     } else {
       throw UnsupportedError("Unsupported parameter type ${value.runtimeType}");
     }
