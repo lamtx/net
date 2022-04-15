@@ -198,7 +198,7 @@ extension JsonReaderExt on JsonReader {
 
   T readEnum<T extends Enum>(List<T> values, String name,
       [T Function()? orElse]) {
-    final index = readNullableInt("name");
+    final index = readNullableInt(name);
     if (index == null || index <= 0 || index >= values.length) {
       return orElse == null ? values.first : orElse();
     } else {
