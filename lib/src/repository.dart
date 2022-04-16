@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import "copy_stream_listener.dart";
@@ -10,6 +11,12 @@ abstract class Repository {
   const Repository();
 
   Future<Uint8List> getData(Request request, [CopyStreamListener? listener]);
+
+  Future<void> download(
+    Request request,
+    Sink<List<int>> Function(HttpClientResponse) sinkFactory, [
+    CopyStreamListener? listener,
+  ]);
 }
 
 extension RepositoryExt on Repository {
@@ -58,5 +65,45 @@ extension RepositoryExt on Repository {
     } else {
       throw Exception("The provided json is not a list.");
     }
+  }
+
+  Future<void> saveToFile(Request request, File file,
+      [CopyStreamListener? listener]) {
+    return download(
+      request,
+      (_) => file.openWrite(mode: FileMode.writeOnly),
+      listener,
+    );
+  }
+
+  Future<File> saveToDirectory(Request request, Directory directory,
+      [CopyStreamListener? listener]) async {
+    late final File file;
+    await download(
+      request,
+      (response) {
+        final fileName =
+            response.headers.value("content-disposition")?.extractFileName() ??
+                "unknown";
+        file = File("${directory.path}/$fileName");
+        return file.openWrite(mode: FileMode.writeOnly);
+      },
+      listener,
+    );
+    return file;
+  }
+}
+
+extension on String {
+  String? extractFileName() {
+    const start = "filename=\"";
+    final index = indexOf(start);
+    if (index != -1) {
+      final endIndex = indexOf("\"", index + start.length);
+      if (endIndex != -1) {
+        return substring(index + start.length, endIndex);
+      }
+    }
+    return null;
   }
 }

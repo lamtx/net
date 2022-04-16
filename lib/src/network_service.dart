@@ -41,12 +41,16 @@ class NetworkService extends Repository {
     }
   }
 
-  Future<void> download(Request request, File file,
-      [CopyStreamListener? listener]) async {
+  @override
+  Future<void> download(
+    Request request,
+    Sink<List<int>> Function(HttpClientResponse) sinkFactory, [
+    CopyStreamListener? listener,
+  ]) async {
     final response = await _makeConnection(request);
     final length = response.contentLength;
     final completer = Completer<void>();
-    final sink = file.openWrite(mode: FileMode.writeOnly);
+    final sink = sinkFactory(response);
     final subscriptionRef = _Ref<StreamSubscription<void>>();
     var count = 0;
 

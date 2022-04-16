@@ -21,8 +21,20 @@ extension ServiceBuilderExt on RequestBuilder {
     return const NetworkService().getList(build(), parser, listener);
   }
 
-  Future<void> download(File file, [CopyStreamListener? listener]) {
-    return const NetworkService().download(build(), file, listener);
+  Future<void> download(
+    Sink<List<int>> Function(HttpClientResponse) sinkFactory, [
+    CopyStreamListener? listener,
+  ]) {
+    return const NetworkService().download(build(), sinkFactory, listener);
+  }
+
+  Future<void> saveToFile(File file, [CopyStreamListener? listener]) {
+    return const NetworkService().saveToFile(build(), file, listener);
+  }
+
+  Future<File> saveToDirectory(Directory directory,
+      [CopyStreamListener? listener]) async {
+    return const NetworkService().saveToDirectory(build(), directory, listener);
   }
 }
 
@@ -44,7 +56,21 @@ extension RequestExt on Request {
     return const NetworkService().getStringList(this, listener);
   }
 
-  Future<void> download(File file, [CopyStreamListener? listener]) {
-    return const NetworkService().download(this, file, listener);
+  Future<void> download(
+    Sink<List<int>> Function(HttpClientResponse) sinkFactory, [
+    CopyStreamListener? listener,
+  ]) {
+    return const NetworkService().download(this, sinkFactory, listener);
+  }
+
+  Future<void> saveToFile(File file, [CopyStreamListener? listener]) {
+    return const NetworkService().saveToFile(this, file, listener);
+  }
+
+  Future<File> saveToDirectory(
+    Directory directory, [
+    CopyStreamListener? listener,
+  ]) async {
+    return const NetworkService().saveToDirectory(this, directory, listener);
   }
 }
