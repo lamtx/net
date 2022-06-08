@@ -18,3 +18,4 @@ export 'src/request.dart';
 export 'src/request_ext.dart';
 export 'src/service_builder.dart';
 export 'src/string_body.dart';
+export 'src/utilities.dart' show StreamExt;
