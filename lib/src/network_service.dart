@@ -48,6 +48,23 @@ class NetworkService extends Repository {
     CopyStreamListener? listener,
   ]) async {
     final response = await _makeConnection(request);
+    assert(() {
+      if (enableLog) {
+        print("Status: ${response.statusCode}");
+      }
+      return true;
+    }());
+    if (response.statusCode != 200) {
+      final body = await response.readAll();
+      final bodyString = utf8.decode(body);
+      assert(() {
+        if (enableLog) {
+          print("Response: $bodyString");
+        }
+        return true;
+      }());
+      throw HttpStatusException(response.statusCode, bodyString);
+    }
     final length = response.contentLength;
     final completer = Completer<void>();
     final sink = sinkFactory(response);
