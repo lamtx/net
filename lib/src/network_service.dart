@@ -27,7 +27,7 @@ class NetworkService extends Repository {
       }
       return true;
     }());
-    if (200 <= response.statusCode && response.statusCode < 300) {
+    if (response.statusCode == 200) {
       return body;
     } else {
       final bodyString = utf8.decode(body);
