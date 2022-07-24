@@ -23,6 +23,7 @@ extension RepositoryExt on Repository {
   Future<String> getString(Request request,
       [CopyStreamListener? listener]) async {
     final body = await getData(request, listener);
+    // FIXME: Should follow ContentType charset in headers
     final bodyString = utf8.decode(body);
 
     assert(() {

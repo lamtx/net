@@ -5,7 +5,8 @@ import 'data_parser.dart';
 import 'network_service.dart';
 import 'repository.dart';
 import 'request.dart';
-import 'service_builder.dart';
+import 'request_builder.dart';
+import 'utilities.dart';
 
 extension ServiceBuilderExt on RequestBuilder {
   Future<String> getString([CopyStreamListener? listener]) {
@@ -39,6 +40,18 @@ extension ServiceBuilderExt on RequestBuilder {
 }
 
 extension RequestExt on Request {
+  String get fullUrl {
+    if (params.isEmpty) {
+      return url;
+    } else {
+      if (url.contains('?')) {
+        return "$url&${toUrlEncoded(params)}";
+      } else {
+        return "$url?${toUrlEncoded(params)}";
+      }
+    }
+  }
+
   Future<String> getString([CopyStreamListener? listener]) {
     return const NetworkService().getString(this, listener);
   }

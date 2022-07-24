@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -41,18 +42,9 @@ extension StreamExt on Stream<List<int>> {
   }
 }
 
-String describeEnum(Object any) {
-  final s = any.toString();
-  final index = s.indexOf(".");
-  return index == -1 ? s : s.substring(index + 1);
-}
-
-String toUrlEncoded(Map params) {
+String toUrlEncoded(Map<String, Object?> params) {
   final s = StringBuffer();
-  params.forEach((dynamic key, dynamic value) {
-    if (key is! String) {
-      throw UnsupportedError("key must be a string");
-    }
+  params.forEach((key, value) {
     if (value == null) {
       return;
     }
@@ -83,4 +75,15 @@ String toUrlEncoded(Map params) {
       ..write(Uri.encodeComponent(sValue));
   });
   return s.toString();
+}
+
+extension HttpClientResponseEncoding on HttpClientResponse {
+  Encoding getContentEncoding() {
+    final charset = headers.contentType?.charset;
+    if (charset == null) {
+      return utf8;
+    }
+    return Encoding.getByName(charset) ??
+        (throw Exception("Unknown charset $charset."));
+  }
 }

@@ -17,7 +17,7 @@ Object? _normalize(Object? value) {
       value is JsonObject ||
       value is List<dynamic> ||
       value is Map<dynamic, dynamic> ||
-      value is Enum);
+      value is Enum, "Type ${value.runtimeType} is not supported to convert to json");
 
   if (value == null || value is num || value is String || value is bool) {
     return value;
@@ -79,7 +79,7 @@ extension SerializableObject on JsonObject {
 
   String serializeAsUrlEncoded() {
     final json = toJson();
-    if (json is Map) {
+    if (json is Map<String, Object?>) {
       return toUrlEncoded(json);
     } else {
       throw UnsupportedError("Not is a map");

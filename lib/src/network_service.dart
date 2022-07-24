@@ -1,5 +1,4 @@
 import "dart:async";
-import 'dart:convert';
 import "dart:io";
 import 'dart:typed_data';
 
@@ -10,6 +9,7 @@ import 'http_method.dart';
 import "http_status_exception.dart";
 import "repository.dart";
 import 'request.dart';
+import 'request_ext.dart';
 import "utilities.dart";
 
 class NetworkService extends Repository {
@@ -27,10 +27,11 @@ class NetworkService extends Repository {
       }
       return true;
     }());
+
     if (response.statusCode == 200) {
       return body;
     } else {
-      final bodyString = utf8.decode(body);
+      final bodyString = response.getContentEncoding().decode(body);
       assert(() {
         if (enableLog) {
           print("Response: $bodyString");
@@ -56,7 +57,7 @@ class NetworkService extends Repository {
     }());
     if (response.statusCode != 200) {
       final body = await response.readAll();
-      final bodyString = utf8.decode(body);
+      final bodyString = response.getContentEncoding().decode(body);
       assert(() {
         if (enableLog) {
           print("Response: $bodyString");
@@ -123,7 +124,7 @@ class NetworkService extends Repository {
 
     assert(() {
       if (enableLog) {
-        print("${describeEnum(request.method).toUpperCase()}: $uri");
+        print("${request.method.name.toUpperCase()}: $uri");
         print("Headers: ${request.headers}");
         print("Credentials: ${request.credentials}");
       }
@@ -135,7 +136,15 @@ class NetworkService extends Repository {
     });
     request.credentials?.handleRequest(httpRequest.headers);
     await _writeContent(httpRequest, request, listener);
-    return httpRequest.close();
+    final response = await httpRequest.close();
+
+    if (!identical(request.responseHeaders, const <String, String>{})) {
+      request.responseHeaders.clear();
+      response.headers.forEach((name, values) {
+        request.responseHeaders[name] = values.last;
+      });
+    }
+    return response;
   }
 
   Future<void> _writeContent(HttpClientRequest request, Request builder,

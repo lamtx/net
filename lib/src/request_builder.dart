@@ -3,7 +3,6 @@ import "credentials.dart";
 import 'http_method.dart';
 import 'request.dart';
 import 'string_body.dart';
-import 'utilities.dart';
 
 class RequestBuilder {
   RequestBuilder(String url) : _url = url;
@@ -11,9 +10,10 @@ class RequestBuilder {
   final String _url;
   HttpMethod _method = HttpMethod.get;
   Body? _body;
-  String _params = "";
+  Map<String, Object?> _params = const {};
   final Map<String, String> _headers = {};
   Credentials? _credentials;
+  Map<String, String> _responseHeaders = const {};
 
   Credentials? get credentials => _credentials;
 
@@ -38,7 +38,7 @@ class RequestBuilder {
   }
 
   RequestBuilder params(Map<String, Object?> params) {
-    _params = toUrlEncoded(params);
+    _params = params;
     return this;
   }
 
@@ -52,14 +52,18 @@ class RequestBuilder {
     return this;
   }
 
-  Request build() {
-    return Request(
-      url: _url,
-      method: _method,
-      body: _body,
-      params: _params,
-      headers: _headers,
-      credentials: _credentials,
-    );
+  RequestBuilder responseHeaders(Map<String, String> headers) {
+    _responseHeaders = headers;
+    return this;
   }
+
+  Request build() => Request(
+        url: _url,
+        method: _method,
+        body: _body,
+        params: _params,
+        headers: _headers,
+        credentials: _credentials,
+        responseHeaders: _responseHeaders,
+      );
 }
