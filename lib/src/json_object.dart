@@ -9,15 +9,17 @@ abstract class JsonObject {
 }
 
 Object? _normalize(Object? value) {
-  assert(value == null ||
-      value is num ||
-      value is String ||
-      value is bool ||
-      value is DateTime ||
-      value is JsonObject ||
-      value is List<dynamic> ||
-      value is Map<dynamic, dynamic> ||
-      value is Enum, "Type ${value.runtimeType} is not supported to convert to json");
+  assert(
+      value == null ||
+          value is num ||
+          value is String ||
+          value is bool ||
+          value is DateTime ||
+          value is JsonObject ||
+          value is List<dynamic> ||
+          value is Map<dynamic, dynamic> ||
+          value is Enum,
+      "Type ${value.runtimeType} is not supported to convert to json");
 
   if (value == null || value is num || value is String || value is bool) {
     return value;
@@ -88,16 +90,20 @@ extension SerializableObject on JsonObject {
 }
 
 extension SerializableListObject on List<JsonObject?> {
-  String serializeAsJson() {
-    return convert.json.encode(toJson());
-  }
-
   List<Object?> toJson() {
     return map((e) => e?.toJson()).toList(growable: false);
+  }
+
+  String serializeAsJson() {
+    return convert.json.encode(toJson());
   }
 }
 
 extension SerializableJson on Map<String, Object?> {
+  Object? toJson() {
+    return _normalize(this);
+  }
+
   String serializeAsJson() {
     final dest = _normalize(this);
     return convert.json.encode(dest);
@@ -105,6 +111,10 @@ extension SerializableJson on Map<String, Object?> {
 }
 
 extension SerializableJsonList on List<Object?> {
+  Object? toJson() {
+    return _normalize(this);
+  }
+
   String serializeAsJson() {
     final dest = _normalize(this);
     return convert.json.encode(dest);

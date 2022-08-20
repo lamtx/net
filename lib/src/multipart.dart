@@ -73,8 +73,7 @@ class Multipart implements Body {
     return sb.toString();
   }
 
-  static final ContentType alternative =
-      ContentType("multipart", "alternative");
+  static ContentType get alternative => ContentType("multipart", "alternative");
 
   static ContentType get byteranges => ContentType("multipart", "byteranges");
 
