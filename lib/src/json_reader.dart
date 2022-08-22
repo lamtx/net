@@ -4,7 +4,7 @@ import "dart:typed_data";
 import "data_parser.dart";
 
 class JsonReader {
-  const JsonReader(Map json) : _json = json;
+  const JsonReader(Map json) : data = json;
 
   factory JsonReader.decode(String s) {
     final dynamic map = json.decode(s);
@@ -15,11 +15,11 @@ class JsonReader {
     }
   }
 
-  final Map _json;
+  final Map data;
 
-  bool hasField(String name) => _json.containsKey(name);
+  bool hasField(String name) => data.containsKey(name);
 
-  Object? _get(String name) => _json[name];
+  Object? _get(String name) => data[name];
 
   String readString(String name, [String? defValue]) =>
       _parseString(_get(name), defValue);
@@ -32,9 +32,9 @@ class JsonReader {
 
   double? readNullableDouble(String name) => _parseDouble(_get(name));
 
-  bool get isEmpty => _json.isEmpty;
+  bool get isEmpty => data.isEmpty;
 
-  int get length => _json.length;
+  int get length => data.length;
 
   String _parseString(Object? obj, [String? defValue]) {
     if (obj == null) {
