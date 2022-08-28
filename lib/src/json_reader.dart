@@ -48,35 +48,46 @@ class JsonReader {
 
   int? _parseInt(Object? obj) {
     if (obj == null) {
-      // ignore: avoid_returning_null
       return null;
     }
     if (obj is num) {
       return obj.toInt();
     }
-    return int.tryParse(obj.toString());
+    if (obj is String) {
+      return int.tryParse(obj);
+    }
+    return null;
   }
 
   double? _parseDouble(Object? obj) {
     if (obj == null) {
-      // ignore: avoid_returning_null
       return null;
     }
     if (obj is num) {
       return obj.toDouble();
     }
-    return double.tryParse(obj.toString());
+    if (obj is String) {
+      return double.tryParse(obj);
+    }
+    return null;
   }
 
-  bool readBool(String name) {
-    final obj = _get(name);
+  bool _parseBool(Object? obj) {
     if (obj == null) {
       return false;
     }
     if (obj is bool) {
       return obj;
     }
+    if (obj is String) {
+      return "true" == obj;
+    }
     return false;
+  }
+
+  bool readBool(String name) {
+    final obj = _get(name);
+    return _parseBool(obj);
   }
 
   DateTime? readDate(String name) {
@@ -137,6 +148,14 @@ class JsonReader {
       return array.map(_parseString).toList(growable: false);
     }
 
+    return const [];
+  }
+
+  List<bool> readBoolList(String name) {
+    final array = _get(name);
+    if (array is List) {
+      return array.map(_parseBool).toList(growable: false);
+    }
     return const [];
   }
 
