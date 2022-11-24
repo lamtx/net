@@ -1,7 +1,6 @@
 library net;
 
 export 'src/body.dart';
-export "src/cancellation_exception.dart";
 export "src/copy_stream_listener.dart";
 export "src/credentials.dart";
 export "src/data_parser.dart";
@@ -19,5 +18,6 @@ export "src/repository.dart";
 export 'src/request.dart';
 export 'src/request_builder.dart';
 export 'src/request_ext.dart';
+export 'src/response_data.dart';
 export 'src/string_body.dart';
 export 'src/utilities.dart' show StreamExt;

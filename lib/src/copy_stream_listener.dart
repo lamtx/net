@@ -1,5 +1,2 @@
-///
-/// return true to cancel the request
-///
-typedef CopyStreamListener = bool? Function(
+typedef CopyStreamListener = void Function(
     int current, int total, bool finished);

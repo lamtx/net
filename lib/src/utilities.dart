@@ -4,9 +4,9 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:async/async.dart';
+import 'package:cancellation/cancellation.dart';
 
-import 'cancellation_exception.dart';
-import 'copy_stream_listener.dart';
+import '../net.dart';
 
 extension StreamExt on Stream<List<int>> {
   Future<Uint8List> readAll() {
@@ -23,21 +23,26 @@ extension StreamExt on Stream<List<int>> {
     return completer.future;
   }
 
-  Future<void> copyTo(IOSink destination,
-      [CopyStreamListener? listener, int? estimatedLength]) async {
+  Future<void> copyTo(
+    IOSink destination, [
+    CopyStreamListener? listener,
+    int? estimatedLength,
+    CancellationToken cancellationToken = CancellationToken.neverCancel,
+  ]) async {
     var current = 0;
     final total = estimatedLength ?? -1;
     final queue = StreamQueue(this);
     while (await queue.hasNext) {
+      cancellationToken.throwIfCancelled();
       final data = await queue.next;
+      cancellationToken.throwIfCancelled();
       destination.add(data);
-      await destination.flush();
-      current += data.length;
-      if (listener?.call(current, total, false) ?? false) {
-        throw const CancellationException();
-      }
-    }
 
+      await destination.flush();
+      cancellationToken.throwIfCancelled();
+      current += data.length;
+      listener?.call(current, total, false);
+    }
     listener?.call(current, total, true);
   }
 }
@@ -80,6 +85,17 @@ String toUrlEncoded(Map<String, Object?> params) {
 extension HttpClientResponseEncoding on HttpClientResponse {
   Encoding getContentEncoding() {
     final charset = headers.contentType?.charset;
+    if (charset == null) {
+      return utf8;
+    }
+    return Encoding.getByName(charset) ??
+        (throw Exception("Unknown charset $charset."));
+  }
+}
+
+extension ResponseDataEncoding on ResponseData {
+  Encoding getContentEncoding() {
+    final charset = contentType?.charset;
     if (charset == null) {
       return utf8;
     }

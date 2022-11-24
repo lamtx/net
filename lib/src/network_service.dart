@@ -1,8 +1,8 @@
 import "dart:async";
 import "dart:io";
-import 'dart:typed_data';
 
-import 'cancellation_exception.dart';
+import "package:cancellation/cancellation.dart";
+
 import "copy_stream_listener.dart";
 import "debug.dart";
 import 'http_method.dart';
@@ -16,47 +16,27 @@ class NetworkService extends Repository {
   const NetworkService();
 
   @override
-  Future<Uint8List> getData(Request request,
-      [CopyStreamListener? listener]) async {
-    final response = await _makeConnection(request, listener);
-    final body = await response.readAll();
-
-    assert(() {
-      if (enableLog) {
-        print("Status: ${response.statusCode}");
-      }
-      return true;
-    }());
-
-    if (response.statusCode == 200) {
-      return body;
-    } else {
-      final bodyString = response.getContentEncoding().decode(body);
-      assert(() {
-        if (enableLog) {
-          print("Response: $bodyString");
-        }
-        return true;
-      }());
-      throw HttpStatusException(response.statusCode, bodyString);
-    }
-  }
-
-  @override
-  Future<void> download(
+  Future<ContentType?> download(
     Request request,
-    Sink<List<int>> Function(HttpClientResponse) sinkFactory, [
+    Sink<List<int>> Function(HttpClientResponse) sinkFactory, {
     CopyStreamListener? listener,
-  ]) async {
-    final response = await _makeConnection(request);
+    CopyStreamListener? uploadListener,
+    CancellationToken cancellationToken = CancellationToken.neverCancel,
+  }) async {
+    final response = await _makeConnection(
+      request,
+      cancellationToken,
+      uploadListener,
+    );
     assert(() {
       if (enableLog) {
         print("Status: ${response.statusCode}");
       }
       return true;
     }());
+    cancellationToken.throwIfCancelled();
     if (response.statusCode != 200) {
-      final body = await response.readAll();
+      final body = await response.readAll().asCancellable(cancellationToken);
       final bodyString = response.getContentEncoding().decode(body);
       assert(() {
         if (enableLog) {
@@ -66,35 +46,45 @@ class NetworkService extends Repository {
       }());
       throw HttpStatusException(response.statusCode, bodyString);
     }
+    final contentType = response.headers.contentType;
     final length = response.contentLength;
-    final completer = Completer<void>();
+    final completer = Completer<ContentType?>();
     final sink = sinkFactory(response);
     final subscriptionRef = _Ref<StreamSubscription<void>>();
     var count = 0;
 
-    subscriptionRef.value = response.listen((data) {
-      count += data.length;
-      sink.add(data);
-      final stop = listener?.call(count, length, false) ?? false;
-      if (stop) {
-        subscriptionRef.value.cancel();
+    subscriptionRef.value = response.listen(
+      (data) {
+        if (cancellationToken.isCancelled) {
+          subscriptionRef.value.cancel();
+          sink.close();
+          completer.completeError(const CancellationException());
+        } else {
+          count += data.length;
+          sink.add(data);
+          listener?.call(count, length, false);
+        }
+      },
+      onDone: () {
+        listener?.call(count, length, true);
         sink.close();
-        completer.completeError(const CancellationException());
-      }
-    }, onDone: () {
-      listener?.call(count, length, true);
-      sink.close();
-      completer.complete();
-    }, onError: (dynamic e) {
-      sink.close();
-      completer.completeError(e as Object);
-    }, cancelOnError: true);
+        completer.complete(contentType);
+      },
+      onError: (dynamic e) {
+        sink.close();
+        completer.completeError(e as Object);
+      },
+      cancelOnError: true,
+    );
 
     return completer.future;
   }
 
-  Future<HttpClientResponse> _makeConnection(Request request,
-      [CopyStreamListener? listener]) async {
+  Future<HttpClientResponse> _makeConnection(
+    Request request,
+    CancellationToken cancellationToken,
+    CopyStreamListener? listener,
+  ) async {
     final uri = Uri.parse(request.fullUrl);
     final client = HttpClient();
 
@@ -122,6 +112,8 @@ class NetworkService extends Repository {
         throw FallThroughError();
     }
 
+    cancellationToken.throwIfCancelled();
+
     assert(() {
       if (enableLog) {
         print("${request.method.name.toUpperCase()}: $uri");
@@ -135,8 +127,11 @@ class NetworkService extends Repository {
       httpRequest.headers.add(key, value);
     });
     request.credentials?.handleRequest(httpRequest.headers);
-    await _writeContent(httpRequest, request, listener);
+    await _writeContent(httpRequest, request, cancellationToken, listener);
+    cancellationToken.throwIfCancelled();
+
     final response = await httpRequest.close();
+    cancellationToken.throwIfCancelled();
 
     if (!identical(request.responseHeaders, const <String, String>{})) {
       request.responseHeaders.clear();
@@ -147,11 +142,15 @@ class NetworkService extends Repository {
     return response;
   }
 
-  Future<void> _writeContent(HttpClientRequest request, Request builder,
-      CopyStreamListener? listener) async {
+  Future<void> _writeContent(
+    HttpClientRequest request,
+    Request builder,
+    CancellationToken cancellationToken,
+    CopyStreamListener? listener,
+  ) {
     final body = builder.body;
     if (body == null) {
-      return;
+      return Future.value();
     }
     request.headers.contentType = body.contentType;
 
@@ -167,7 +166,7 @@ class NetworkService extends Repository {
     if (listener == null) {
       return request.addStream(content);
     } else {
-      return content.copyTo(request, listener, body.length);
+      return content.copyTo(request, listener, body.length, cancellationToken);
     }
   }
 }
