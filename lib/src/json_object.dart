@@ -42,7 +42,7 @@ Object? _normalize(Object? value) {
 
   if (value is Map) {
     final dest = <String, Object>{};
-    value.forEach((dynamic k, dynamic v) {
+    value.forEach((k, v) {
       if (k is String) {
         final normalized = _normalize(v);
         if (normalized != null) {

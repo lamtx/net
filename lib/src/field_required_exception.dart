@@ -1,5 +1,5 @@
 class FieldRequiredException implements Exception {
-  FieldRequiredException(this.field);
+  const FieldRequiredException(this.field);
 
   final String field;
 

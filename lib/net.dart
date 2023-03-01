@@ -1,5 +1,3 @@
-library net;
-
 export 'src/body.dart';
 export "src/copy_stream_listener.dart";
 export "src/credentials.dart";

@@ -70,9 +70,10 @@ class NetworkService extends Repository {
         sink.close();
         completer.complete(contentType);
       },
-      onError: (dynamic e) {
+      // ignore: avoid_types_on_closure_parameters
+      onError: (Object e) {
         sink.close();
-        completer.completeError(e as Object);
+        completer.completeError(e);
       },
       cancelOnError: true,
     );
@@ -88,7 +89,7 @@ class NetworkService extends Repository {
     final uri = Uri.parse(request.fullUrl);
     final client = HttpClient();
 
-    HttpClientRequest httpRequest;
+    final HttpClientRequest httpRequest;
     switch (request.method) {
       case HttpMethod.get:
         httpRequest = await client.getUrl(uri);
@@ -108,8 +109,6 @@ class NetworkService extends Repository {
       case HttpMethod.delete:
         httpRequest = await client.deleteUrl(uri);
         break;
-      default:
-        throw FallThroughError();
     }
 
     cancellationToken.throwIfCancelled();

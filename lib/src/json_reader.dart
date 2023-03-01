@@ -4,7 +4,7 @@ import "dart:typed_data";
 import "data_parser.dart";
 
 class JsonReader {
-  const JsonReader(Map json) : data = json;
+  const JsonReader(Map<dynamic, dynamic> json) : data = json;
 
   factory JsonReader.decode(String s) {
     final dynamic map = json.decode(s);
@@ -15,7 +15,7 @@ class JsonReader {
     }
   }
 
-  final Map data;
+  final Map<dynamic, dynamic> data;
 
   bool hasField(String name) => data.containsKey(name);
 
@@ -109,7 +109,7 @@ class JsonReader {
         return [];
       }
 
-      return array.map((dynamic e) {
+      return array.map((e) {
         if (e is Map) {
           return parser(JsonReader(e));
         } else {

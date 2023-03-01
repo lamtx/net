@@ -35,7 +35,10 @@ extension ParseData<T> on DataParser<T> {
     }
   }
 
-  List<T> parseJsonList(List array) {
-    return array.whereType<Map>().map((e) => this(JsonReader(e))).toList();
+  List<T> parseJsonList(List<Object?> array) {
+    return array
+        .whereType<Map<dynamic, dynamic>>()
+        .map((e) => this(JsonReader(e)))
+        .toList();
   }
 }

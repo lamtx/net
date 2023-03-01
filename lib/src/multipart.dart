@@ -21,7 +21,7 @@ class Multipart implements Body {
     );
   }
 
-  Multipart._(
+  const Multipart._(
     this.children, {
     required this.contentType,
     required Uint8List boundary,
@@ -41,12 +41,14 @@ class Multipart implements Body {
   Stream<List<int>> get content {
     final group = StreamGroup<List<int>>();
     for (final part in children) {
-      group.add(ByteStream.fromBytes(_boundary));
-      group.add(ByteStream.fromBytes(part.headers));
-      group.add(part.body.content);
+      group
+        ..add(ByteStream.fromBytes(_boundary))
+        ..add(ByteStream.fromBytes(part.headers))
+        ..add(part.body.content);
     }
-    group.add(ByteStream.fromBytes(_boundaryEnd));
-    group.close();
+    group
+      ..add(ByteStream.fromBytes(_boundaryEnd))
+      ..close();
     return group.stream;
   }
 
@@ -65,9 +67,10 @@ class Multipart implements Body {
   String toString() {
     final sb = StringBuffer();
     for (final part in children) {
-      sb.write(ascii.decode(_boundary));
-      sb.write(ascii.decode(part.headers));
-      sb.write(part.body);
+      sb
+        ..write(ascii.decode(_boundary))
+        ..write(ascii.decode(part.headers))
+        ..write(part.body);
     }
     sb.write(ascii.decode(_boundaryEnd));
     return sb.toString();

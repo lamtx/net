@@ -14,7 +14,7 @@ abstract class Body {
 }
 
 class _Body implements Body {
-  _Body(this.data, this.contentType);
+  const _Body(this.data, this.contentType);
 
   final Uint8List data;
 

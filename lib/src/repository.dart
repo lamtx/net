@@ -46,14 +46,18 @@ extension RepositoryExt on Repository {
     CancellationToken cancellationToken = CancellationToken.neverCancel,
   }) async {
     final byteSink = _ByteSink();
-    final contentType = await download(
-      request,
-      (_) => byteSink,
-      uploadListener: listener,
-      cancellationToken: cancellationToken,
-    );
-    cancellationToken.throwIfCancelled();
-    return ResponseData(byteSink.takeBytes(), contentType);
+    try {
+      final contentType = await download(
+        request,
+        (_) => byteSink,
+        uploadListener: listener,
+        cancellationToken: cancellationToken,
+      );
+      cancellationToken.throwIfCancelled();
+      return ResponseData(byteSink.takeBytes(), contentType);
+    } finally {
+      byteSink.close();
+    }
   }
 
   Future<String> getString(
@@ -131,7 +135,7 @@ extension RepositoryExt on Repository {
     }
     final dynamic array = json.decode(response);
     if (array is List) {
-      return array.map((dynamic e) => e.toString()).toList();
+      return array.map((e) => e.toString()).toList();
     } else {
       throw Exception("The provided json is not a list.");
     }
@@ -177,10 +181,10 @@ extension RepositoryExt on Repository {
 
 extension on String {
   String? extractFileName() {
-    const start = "filename=\"";
+    const start = 'filename="';
     final index = indexOf(start);
     if (index != -1) {
-      final endIndex = indexOf("\"", index + start.length);
+      final endIndex = indexOf('"', index + start.length);
       if (endIndex != -1) {
         return substring(index + start.length, endIndex);
       }
