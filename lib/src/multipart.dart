@@ -17,7 +17,7 @@ class Multipart implements Body {
         "boundary": boundary,
       }),
       boundary: ascii.encode("\r\n--$boundary\r\n"),
-      boundaryEnd: ascii.encode("\r\n--$boundary--"),
+      boundaryEnd: ascii.encode("\r\n--$boundary--\r\n"),
     );
   }
 
