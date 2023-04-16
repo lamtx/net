@@ -123,9 +123,7 @@ class JsonReader {
   List<double> readDoubleList(String name) {
     final array = _get(name);
     if (array is List) {
-      return array
-          .map((dynamic e) => _parseDouble(e) ?? 0)
-          .toList(growable: false);
+      return array.map((e) => _parseDouble(e) ?? 0).toList(growable: false);
     }
 
     return const [];
@@ -134,9 +132,7 @@ class JsonReader {
   List<int> readIntList(String name) {
     final array = _get(name);
     if (array is List) {
-      return array
-          .map((dynamic e) => _parseInt(e) ?? 0)
-          .toList(growable: false);
+      return array.map((e) => _parseInt(e) ?? 0).toList(growable: false);
     }
 
     return const [];
@@ -189,7 +185,7 @@ class JsonReader {
 
     if (array is List) {
       return array
-          .map((dynamic e) => e is Map
+          .map((e) => e is Map
               ? JsonReader(e)
               : (throw Exception("$name is not a list of dictionary")))
           .toList(growable: false);

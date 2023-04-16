@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:http/http.dart';
 import 'package:mime/mime.dart';
+import 'package:path/path.dart';
 
 import 'body.dart';
 
@@ -17,13 +17,15 @@ class FileBody implements Body {
   final ContentType contentType;
 
   @override
-  Stream<List<int>> get content => ByteStream(_file.openRead());
+  Stream<List<int>> get content => _file.openRead();
 
   @override
   int get length => _file.lengthSync();
 
   @override
-  String toString() => "File ${_file.path}";
+  String toString() => "`file ${_file.path}`";
+
+  String get filename => basename(_file.path);
 
   static ContentType? _lookupMimeType(File file) {
     final mimeType = lookupMimeType(file.path);
