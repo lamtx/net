@@ -2,35 +2,34 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:async/async.dart';
-import 'package:http/http.dart';
 import 'package:uuid/uuid.dart';
 
+import '../net.dart';
 import 'body.dart';
 
 class Multipart implements Body {
   factory Multipart(List<Part> children, {ContentType? contentType}) {
-    final boundary = "--${const Uuid().v4()}";
+    final boundary = "--dart-http-boundary-${const Uuid().v4()}";
     return Multipart._(
       children,
       contentType: _mergeContentType(contentType ?? related, {
         "boundary": boundary,
       }),
-      boundary: ascii.encode("\r\n--$boundary\r\n"),
-      boundaryEnd: ascii.encode("\r\n--$boundary--\r\n"),
+      separator: ascii.encode("--$boundary\r\n"),
+      terminator: ascii.encode("--$boundary--\r\n"),
     );
   }
 
   const Multipart._(
     this.children, {
     required this.contentType,
-    required Uint8List boundary,
-    required Uint8List boundaryEnd,
-  })  : _boundary = boundary,
-        _boundaryEnd = boundaryEnd;
+    required Uint8List separator,
+    required Uint8List terminator,
+  })  : _separator = separator,
+        _terminator = terminator;
 
-  final Uint8List _boundary;
-  final Uint8List _boundaryEnd;
+  final Uint8List _separator; // --$boundary\r\n
+  final Uint8List _terminator; // --$boundary--\r\n
 
   @override
   final ContentType contentType;
@@ -38,29 +37,27 @@ class Multipart implements Body {
   final List<Part> children;
 
   @override
-  Stream<List<int>> get content {
-    final group = StreamGroup<List<int>>();
+  Stream<List<int>> get content async* {
+    const line = [13, 10]; // \r\n
     for (final part in children) {
-      group
-        ..add(ByteStream.fromBytes(_boundary))
-        ..add(ByteStream.fromBytes(part.headers))
-        ..add(part.body.content);
+      yield _separator;
+      yield part.headers;
+      yield* part.body.content;
+      yield line;
     }
-    group
-      ..add(ByteStream.fromBytes(_boundaryEnd))
-      ..close();
-    return group.stream;
+    yield _terminator;
   }
 
   @override
   int get length {
     var size = 0;
     for (final part in children) {
-      size += _boundary.length;
+      size += _separator.length;
       size += part.headers.length;
       size += part.body.length;
+      size += 2; // \r\n
     }
-    return size += _boundaryEnd.length;
+    return size + _terminator.length;
   }
 
   @override
@@ -68,11 +65,11 @@ class Multipart implements Body {
     final sb = StringBuffer();
     for (final part in children) {
       sb
-        ..write(ascii.decode(_boundary))
+        ..write(ascii.decode(_separator))
         ..write(ascii.decode(part.headers))
         ..write(part.body);
     }
-    sb.write(ascii.decode(_boundaryEnd));
+    sb.write(ascii.decode(_terminator));
     return sb.toString();
   }
 
