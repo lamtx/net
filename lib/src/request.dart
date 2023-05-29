@@ -1,5 +1,6 @@
 import '../net.dart';
 
+/// Allows to extends and implements
 class Request {
   const Request({
     required this.url,

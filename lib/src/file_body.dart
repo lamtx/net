@@ -5,7 +5,7 @@ import 'package:path/path.dart';
 
 import 'body.dart';
 
-class FileBody implements Body {
+final class FileBody implements Body {
   FileBody(File file, {ContentType? contentType})
       : _file = file,
         contentType =

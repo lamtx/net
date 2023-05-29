@@ -1,5 +1,5 @@
 import 'dart:io';
 
-abstract class Credentials {
+abstract interface class Credentials {
   void handleRequest(HttpHeaders headers);
 }

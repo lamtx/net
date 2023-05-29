@@ -7,7 +7,7 @@ import 'body.dart';
 import 'json_object.dart';
 import 'utilities.dart';
 
-class StringBody implements Body {
+final class StringBody implements Body {
   StringBody(String content, this.contentType)
       : assert(content.isNotEmpty),
         _data = getEncoding(contentType).encode(content);

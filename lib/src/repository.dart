@@ -11,9 +11,7 @@ import 'request.dart';
 import 'response_data.dart';
 import 'utilities.dart';
 
-abstract class Repository {
-  const Repository();
-
+abstract interface class Repository {
   Future<ContentType?> download(
     Request request,
     Sink<List<int>> Function(HttpClientResponse) sinkFactory, {

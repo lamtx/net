@@ -2,7 +2,7 @@ import "dart:convert" as convert;
 
 import 'utilities.dart';
 
-abstract class JsonObject {
+abstract interface class JsonObject {
   ///
   /// JsonObject accepts [String], [num], [bool], [DateTime], [Enum], [Null], [List] or [Map] of primitive type
   Object? describeContent();

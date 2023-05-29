@@ -3,7 +3,7 @@ import "dart:typed_data";
 
 import "data_parser.dart";
 
-class JsonReader {
+final class JsonReader {
   const JsonReader(Map<dynamic, dynamic> json) : data = json;
 
   factory JsonReader.decode(String s) {

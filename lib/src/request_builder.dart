@@ -4,7 +4,7 @@ import 'http_method.dart';
 import 'request.dart';
 import 'string_body.dart';
 
-class RequestBuilder {
+final class RequestBuilder {
   RequestBuilder(String url) : _url = url;
 
   final String _url;

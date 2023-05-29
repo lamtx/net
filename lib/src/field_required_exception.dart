@@ -1,4 +1,4 @@
-class FieldRequiredException implements Exception {
+final class FieldRequiredException implements Exception {
   const FieldRequiredException(this.field);
 
   final String field;

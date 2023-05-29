@@ -1,6 +1,6 @@
 import 'dart:io';
 
-class HttpStatusException implements Exception {
+base class HttpStatusException implements Exception {
   const HttpStatusException(this.statusCode, this.content);
 
   final int statusCode;

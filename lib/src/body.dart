@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:http/http.dart';
 
-abstract class Body {
+abstract interface class Body {
   factory Body(Uint8List content, ContentType contentType) = _Body;
 
   ContentType get contentType;
@@ -13,7 +13,7 @@ abstract class Body {
   int get length;
 }
 
-class _Body implements Body {
+final class _Body implements Body {
   const _Body(this.data, this.contentType);
 
   final Uint8List data;

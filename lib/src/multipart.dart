@@ -6,7 +6,7 @@ import 'package:uuid/uuid.dart';
 
 import '../net.dart';
 
-class Multipart implements Body {
+final class Multipart implements Body {
   factory Multipart(List<Part> children, {ContentType? contentType}) {
     if (contentType != null && contentType.primaryType != "multipart") {
       throw ArgumentError("ContentType has to be `multipart`");
@@ -33,12 +33,12 @@ class Multipart implements Body {
     );
   }
 
-  const Multipart._(this.children, {
+  const Multipart._(
+    this.children, {
     required this.contentType,
     required Uint8List separator,
     required Uint8List terminator,
-  })
-      : _separator = separator,
+  })  : _separator = separator,
         _terminator = terminator;
 
   final Uint8List _separator; // --$boundary\r\n
@@ -77,8 +77,11 @@ class Multipart implements Body {
   String toString() {
     final sb = StringBuffer();
     for (final part in children) {
-      sb..write(ascii.decode(_separator))..write(
-          ascii.decode(part.headers))..write(part.body)..write("\r\n");
+      sb
+        ..write(ascii.decode(_separator))
+        ..write(ascii.decode(part.headers))
+        ..write(part.body)
+        ..write("\r\n");
     }
     sb.write(ascii.decode(_terminator));
     return sb.toString();
@@ -98,8 +101,8 @@ class Multipart implements Body {
 
   static ContentType get related => ContentType("multipart", "related");
 
-  static ContentType _mergeContentType(ContentType base,
-      Map<String, String> params) {
+  static ContentType _mergeContentType(
+      ContentType base, Map<String, String> params) {
     return ContentType(
       base.primaryType,
       base.subType,
@@ -109,8 +112,9 @@ class Multipart implements Body {
   }
 }
 
-class Part {
-  Part(this.body, {
+final class Part {
+  Part(
+    this.body, {
     Map<String, String> headers = const {},
     this.field,
   }) : headers = _encodeHeaders(body, field, headers);
@@ -123,9 +127,11 @@ class Part {
   @override
   String toString() => "${ascii.decode(headers)}$body";
 
-  static Uint8List _encodeHeaders(Body body,
-      String? field,
-      Map<String, String> headers,) {
+  static Uint8List _encodeHeaders(
+    Body body,
+    String? field,
+    Map<String, String> headers,
+  ) {
     final sb = StringBuffer();
     for (final s in headers.entries) {
       sb.writeHeader(s.key, s.value);
@@ -137,8 +143,7 @@ class Part {
         "content-disposition",
         filename.isEmpty
             ? 'form-data; name="${_browserEncode(field)}"'
-            : 'form-data; name="${_browserEncode(
-            field)}"; filename="${_browserEncode(filename)}"',
+            : 'form-data; name="${_browserEncode(field)}"; filename="${_browserEncode(filename)}"',
       );
     }
     sb.write("\r\n");
@@ -150,16 +155,19 @@ class Part {
   /// Encode [value] in the same way browsers do.
   static String _browserEncode(String value) =>
       // http://tools.ietf.org/html/rfc2388 mandates some complex encodings for
-  // field names and file names, but in practice user agents seem not to
-  // follow this at all. Instead, they URL-encode `\r`, `\n`, and `\r\n` as
-  // `\r\n`; URL-encode `"`; and do nothing else (even for `%` or non-ASCII
-  // characters). We follow their behavior.
-  value.replaceAll(_newlineRegExp, '%0D%0A').replaceAll('"', '%22');
+      // field names and file names, but in practice user agents seem not to
+      // follow this at all. Instead, they URL-encode `\r`, `\n`, and `\r\n` as
+      // `\r\n`; URL-encode `"`; and do nothing else (even for `%` or non-ASCII
+      // characters). We follow their behavior.
+      value.replaceAll(_newlineRegExp, '%0D%0A').replaceAll('"', '%22');
 }
 
 extension on StringBuffer {
   void writeHeader(String header, Object value) {
     this
-      ..write(header)..write(": ")..write(value)..write("\r\n");
+      ..write(header)
+      ..write(": ")
+      ..write(value)
+      ..write("\r\n");
   }
 }

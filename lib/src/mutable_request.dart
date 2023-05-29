@@ -3,7 +3,7 @@ import 'credentials.dart';
 import 'http_method.dart';
 import 'request.dart';
 
-class MutableRequest implements Request {
+final class MutableRequest implements Request {
   MutableRequest({
     required this.url,
     this.method = HttpMethod.get,

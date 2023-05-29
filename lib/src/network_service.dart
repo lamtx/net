@@ -12,7 +12,7 @@ import 'request.dart';
 import 'request_ext.dart';
 import "utilities.dart";
 
-class NetworkService extends Repository {
+class NetworkService implements Repository {
   const NetworkService();
 
   @override
@@ -89,27 +89,14 @@ class NetworkService extends Repository {
     final uri = Uri.parse(request.fullUrl);
     final client = HttpClient();
 
-    final HttpClientRequest httpRequest;
-    switch (request.method) {
-      case HttpMethod.get:
-        httpRequest = await client.getUrl(uri);
-        break;
-      case HttpMethod.post:
-        httpRequest = await client.postUrl(uri);
-        break;
-      case HttpMethod.patch:
-        httpRequest = await client.patchUrl(uri);
-        break;
-      case HttpMethod.put:
-        httpRequest = await client.putUrl(uri);
-        break;
-      case HttpMethod.head:
-        httpRequest = await client.headUrl(uri);
-        break;
-      case HttpMethod.delete:
-        httpRequest = await client.deleteUrl(uri);
-        break;
-    }
+    final httpRequest = switch (request.method) {
+      HttpMethod.get => await client.getUrl(uri),
+      HttpMethod.post => await client.postUrl(uri),
+      HttpMethod.patch => await client.patchUrl(uri),
+      HttpMethod.put => await client.putUrl(uri),
+      HttpMethod.head => await client.headUrl(uri),
+      HttpMethod.delete => await client.deleteUrl(uri)
+    };
 
     cancellationToken.throwIfCancelled();
 
