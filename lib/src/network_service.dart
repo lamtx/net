@@ -29,7 +29,7 @@ class NetworkService implements Repository {
       uploadListener,
     );
     assert(() {
-      if (enableLog && request.debugConfig.isLogEnabled) {
+      if (enableLog && request.options.isLogEnabled) {
         print("Status: ${response.statusCode}");
       }
       return true;
@@ -39,7 +39,7 @@ class NetworkService implements Repository {
       final body = await response.readAll().asCancellable(cancellationToken);
       final bodyString = response.getContentEncoding().decode(body);
       assert(() {
-        if (enableLog && request.debugConfig.isLogEnabled) {
+        if (enableLog && request.options.isLogEnabled) {
           print("Response: $bodyString");
         }
         return true;
@@ -101,7 +101,7 @@ class NetworkService implements Repository {
     cancellationToken.throwIfCancelled();
 
     assert(() {
-      if (enableLog && request.debugConfig.isLogEnabled) {
+      if (enableLog && request.options.isLogEnabled) {
         print("${request.method.name.toUpperCase()}: $uri");
         print("Headers: ${request.headers}");
         print("Credentials: ${request.credentials}");

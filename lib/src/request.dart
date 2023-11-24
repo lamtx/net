@@ -1,5 +1,7 @@
-import '../net.dart';
-import 'debug_config.dart';
+import 'body.dart';
+import 'credentials.dart';
+import 'http_method.dart';
+import 'request_options.dart';
 
 abstract interface class Request {
   const factory Request({
@@ -9,7 +11,7 @@ abstract interface class Request {
     Map<String, Object?> params,
     Map<String, String> headers,
     Body? body,
-    DebugConfig debugConfig,
+    RequestOptions options,
   }) = _ImmutableRequest;
 
   const factory Request.get({
@@ -18,7 +20,7 @@ abstract interface class Request {
     Map<String, Object?> params,
     Map<String, String> headers,
     Body? body,
-    DebugConfig debugConfig,
+    RequestOptions options,
   }) = _ImmutableRequest.get;
 
   const factory Request.post({
@@ -27,7 +29,7 @@ abstract interface class Request {
     Map<String, Object?> params,
     Map<String, String> headers,
     Body? body,
-    DebugConfig debugConfig,
+    RequestOptions options,
   }) = _ImmutableRequest.post;
 
   const factory Request.patch({
@@ -36,7 +38,7 @@ abstract interface class Request {
     Map<String, Object?> params,
     Map<String, String> headers,
     Body? body,
-    DebugConfig debugConfig,
+    RequestOptions options,
   }) = _ImmutableRequest.patch;
 
   const factory Request.delete({
@@ -45,7 +47,7 @@ abstract interface class Request {
     Map<String, Object?> params,
     Map<String, String> headers,
     Body? body,
-    DebugConfig debugConfig,
+    RequestOptions options,
   }) = _ImmutableRequest.delete;
 
   const factory Request.head({
@@ -54,7 +56,7 @@ abstract interface class Request {
     Map<String, Object?> params,
     Map<String, String> headers,
     Body? body,
-    DebugConfig debugConfig,
+    RequestOptions options,
   }) = _ImmutableRequest.head;
 
   const factory Request.put({
@@ -63,7 +65,7 @@ abstract interface class Request {
     Map<String, Object?> params,
     Map<String, String> headers,
     Body? body,
-    DebugConfig debugConfig,
+    RequestOptions options,
   }) = _ImmutableRequest.put;
 
   String get url;
@@ -78,7 +80,7 @@ abstract interface class Request {
 
   Credentials? get credentials;
 
-  DebugConfig get debugConfig;
+  RequestOptions get options;
 }
 
 final class _ImmutableRequest implements Request {
@@ -89,7 +91,7 @@ final class _ImmutableRequest implements Request {
     this.params = const {},
     this.headers = const {},
     this.body,
-    this.debugConfig = const DebugConfig(),
+    this.options = const RequestOptions(),
   });
 
   const _ImmutableRequest.get({
@@ -98,7 +100,7 @@ final class _ImmutableRequest implements Request {
     this.params = const {},
     this.headers = const {},
     this.body,
-    this.debugConfig = const DebugConfig(),
+    this.options = const RequestOptions(),
   }) : method = HttpMethod.get;
 
   const _ImmutableRequest.post({
@@ -107,7 +109,7 @@ final class _ImmutableRequest implements Request {
     this.params = const {},
     this.headers = const {},
     this.body,
-    this.debugConfig = const DebugConfig(),
+    this.options = const RequestOptions(),
   }) : method = HttpMethod.post;
 
   const _ImmutableRequest.patch({
@@ -116,7 +118,7 @@ final class _ImmutableRequest implements Request {
     this.params = const {},
     this.headers = const {},
     this.body,
-    this.debugConfig = const DebugConfig(),
+    this.options = const RequestOptions(),
   }) : method = HttpMethod.patch;
 
   const _ImmutableRequest.delete({
@@ -125,7 +127,7 @@ final class _ImmutableRequest implements Request {
     this.params = const {},
     this.headers = const {},
     this.body,
-    this.debugConfig = const DebugConfig(),
+    this.options = const RequestOptions(),
   }) : method = HttpMethod.delete;
 
   const _ImmutableRequest.head({
@@ -134,7 +136,7 @@ final class _ImmutableRequest implements Request {
     this.params = const {},
     this.headers = const {},
     this.body,
-    this.debugConfig = const DebugConfig(),
+    this.options = const RequestOptions(),
   }) : method = HttpMethod.head;
 
   const _ImmutableRequest.put({
@@ -143,7 +145,7 @@ final class _ImmutableRequest implements Request {
     this.params = const {},
     this.headers = const {},
     this.body,
-    this.debugConfig = const DebugConfig(),
+    this.options = const RequestOptions(),
   }) : method = HttpMethod.put;
 
   @override
@@ -159,5 +161,5 @@ final class _ImmutableRequest implements Request {
   @override
   final Credentials? credentials;
   @override
-  final DebugConfig debugConfig;
+  final RequestOptions options;
 }

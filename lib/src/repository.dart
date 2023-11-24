@@ -42,7 +42,7 @@ extension RepositoryExt on Repository {
   Future<ResponseData> getData(
     Request request, {
     HttpHeadersResponse? response,
-    CopyStreamListener? listener,
+    CopyStreamListener? uploadListener,
     CancellationToken cancellationToken = CancellationToken.neverCancel,
   }) async {
     final byteSink = _ByteSink();
@@ -53,7 +53,7 @@ extension RepositoryExt on Repository {
           response?.set(connection);
           return byteSink;
         },
-        uploadListener: listener,
+        uploadListener: uploadListener,
         cancellationToken: cancellationToken,
       );
       cancellationToken.throwIfCancelled();
@@ -66,20 +66,20 @@ extension RepositoryExt on Repository {
   Future<String> getString(
     Request request, {
     HttpHeadersResponse? response,
-    CopyStreamListener? listener,
+    CopyStreamListener? uploadListener,
     CancellationToken cancellationToken = CancellationToken.neverCancel,
   }) async {
     final body = await getData(
       request,
       response: response,
-      listener: listener,
+      uploadListener: uploadListener,
       cancellationToken: cancellationToken,
     );
     cancellationToken.throwIfCancelled();
     final bodyString = body.getContentEncoding().decode(body.data);
 
     assert(() {
-      if (enableLog && request.debugConfig.isLogEnabled) {
+      if (enableLog && request.options.isLogEnabled) {
         print("Response: $bodyString");
       }
       return true;
@@ -92,12 +92,12 @@ extension RepositoryExt on Repository {
     Request request,
     DataParser<T> parser, {
     HttpHeadersResponse? response,
-    CopyStreamListener? listener,
+    CopyStreamListener? uploadListener,
     CancellationToken cancellationToken = CancellationToken.neverCancel,
   }) async {
     final s = await getString(
       request,
-      listener: listener,
+      uploadListener: uploadListener,
       response: response,
       cancellationToken: cancellationToken,
     );
@@ -112,13 +112,13 @@ extension RepositoryExt on Repository {
     Request request,
     DataParser<T> parser, {
     HttpHeadersResponse? response,
-    CopyStreamListener? listener,
+    CopyStreamListener? uploadListener,
     CancellationToken cancellationToken = CancellationToken.neverCancel,
   }) async {
     final s = await getString(
       request,
       response: response,
-      listener: listener,
+      uploadListener: uploadListener,
       cancellationToken: cancellationToken,
     );
     cancellationToken.throwIfCancelled();
@@ -131,12 +131,12 @@ extension RepositoryExt on Repository {
   Future<List<String>> getStringList(
     Request request, {
     HttpHeadersResponse? response,
-    CopyStreamListener? listener,
+    CopyStreamListener? uploadListener,
     CancellationToken cancellationToken = CancellationToken.neverCancel,
   }) async {
     final s = await getString(
       request,
-      listener: listener,
+      uploadListener: uploadListener,
       response: response,
       cancellationToken: cancellationToken,
     );

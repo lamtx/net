@@ -1,5 +1,5 @@
-final class DebugConfig {
-  const DebugConfig({
+final class RequestOptions {
+  const RequestOptions({
     this.isLogEnabled = true,
   });
 

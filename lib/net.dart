@@ -3,7 +3,7 @@ export "src/copy_stream_listener.dart";
 export "src/credentials.dart";
 export "src/data_parser.dart";
 export "src/debug.dart";
-export 'src/debug_config.dart';
+export 'src/request_options.dart';
 export "src/field_required_exception.dart";
 export "src/file_body.dart";
 export 'src/http_headers_response.dart' show HttpHeadersResponse;

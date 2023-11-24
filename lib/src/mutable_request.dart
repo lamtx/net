@@ -1,8 +1,8 @@
 import 'body.dart';
 import 'credentials.dart';
-import 'debug_config.dart';
 import 'http_method.dart';
 import 'request.dart';
+import 'request_options.dart';
 
 final class MutableRequest implements Request {
   MutableRequest({
@@ -12,7 +12,7 @@ final class MutableRequest implements Request {
     this.body,
     this.params = const {},
     this.headers = const {},
-    this.debugConfig = const DebugConfig(),
+    this.options = const RequestOptions(),
   });
 
   MutableRequest.get({
@@ -21,7 +21,7 @@ final class MutableRequest implements Request {
     this.body,
     this.params = const {},
     this.headers = const {},
-    this.debugConfig = const DebugConfig(),
+    this.options = const RequestOptions(),
   }) : method = HttpMethod.get;
 
   MutableRequest.post({
@@ -30,7 +30,7 @@ final class MutableRequest implements Request {
     this.body,
     this.params = const {},
     this.headers = const {},
-    this.debugConfig = const DebugConfig(),
+    this.options = const RequestOptions(),
   }) : method = HttpMethod.post;
 
   MutableRequest.put({
@@ -39,7 +39,7 @@ final class MutableRequest implements Request {
     this.body,
     this.params = const {},
     this.headers = const {},
-    this.debugConfig = const DebugConfig(),
+    this.options = const RequestOptions(),
   }) : method = HttpMethod.put;
 
   MutableRequest.patch({
@@ -48,7 +48,7 @@ final class MutableRequest implements Request {
     this.body,
     this.params = const {},
     this.headers = const {},
-    this.debugConfig = const DebugConfig(),
+    this.options = const RequestOptions(),
   }) : method = HttpMethod.patch;
 
   MutableRequest.head({
@@ -57,7 +57,7 @@ final class MutableRequest implements Request {
     this.body,
     this.params = const {},
     this.headers = const {},
-    this.debugConfig = const DebugConfig(),
+    this.options = const RequestOptions(),
   }) : method = HttpMethod.head;
 
   MutableRequest.delete({
@@ -66,7 +66,7 @@ final class MutableRequest implements Request {
     this.body,
     this.params = const {},
     this.headers = const {},
-    this.debugConfig = const DebugConfig(),
+    this.options = const RequestOptions(),
   }) : method = HttpMethod.delete;
 
   @override
@@ -82,5 +82,5 @@ final class MutableRequest implements Request {
   @override
   Map<String, String> headers;
   @override
-  DebugConfig debugConfig;
+  RequestOptions options;
 }

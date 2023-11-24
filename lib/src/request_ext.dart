@@ -13,38 +13,44 @@ import 'utilities.dart';
 
 extension ServiceBuilderExt on RequestBuilder {
   Future<String> getString({
-    CopyStreamListener? listener,
+    HttpHeadersResponse? response,
+    CopyStreamListener? uploadListener,
     CancellationToken cancellationToken = CancellationToken.neverCancel,
   }) {
     return const NetworkService().getString(
       build(),
-      listener: listener,
+      uploadListener: uploadListener,
+      response: response,
       cancellationToken: cancellationToken,
     );
   }
 
   Future<T> get<T>(
     DataParser<T> parser, {
-    CopyStreamListener? listener,
+    HttpHeadersResponse? response,
+    CopyStreamListener? uploadListener,
     CancellationToken cancellationToken = CancellationToken.neverCancel,
   }) {
     return const NetworkService().get(
       build(),
       parser,
-      listener: listener,
+      response: response,
+      uploadListener: uploadListener,
       cancellationToken: cancellationToken,
     );
   }
 
   Future<List<T>> getList<T>(
     DataParser<T> parser, {
-    CopyStreamListener? listener,
+    HttpHeadersResponse? response,
+    CopyStreamListener? uploadListener,
     CancellationToken cancellationToken = CancellationToken.neverCancel,
   }) {
     return const NetworkService().getList(
       build(),
       parser,
-      listener: listener,
+      response: response,
+      uploadListener: uploadListener,
       cancellationToken: cancellationToken,
     );
   }
@@ -64,12 +70,14 @@ extension ServiceBuilderExt on RequestBuilder {
 
   Future<void> saveToFile(
     File file, {
+    HttpHeadersResponse? response,
     CopyStreamListener? listener,
     CancellationToken cancellationToken = CancellationToken.neverCancel,
   }) {
     return const NetworkService().saveToFile(
       build(),
       file,
+      response: response,
       listener: listener,
       cancellationToken: cancellationToken,
     );
@@ -77,12 +85,14 @@ extension ServiceBuilderExt on RequestBuilder {
 
   Future<File> saveToDirectory(
     Directory directory, {
+    HttpHeadersResponse? response,
     CopyStreamListener? listener,
     CancellationToken cancellationToken = CancellationToken.neverCancel,
   }) async {
     return const NetworkService().saveToDirectory(
       build(),
       directory,
+      response: response,
       listener: listener,
       cancellationToken: cancellationToken,
     );
@@ -109,7 +119,7 @@ extension RequestExt on Request {
   }) {
     return const NetworkService().getString(
       this,
-      listener: listener,
+      uploadListener: listener,
       cancellationToken: cancellationToken,
     );
   }
@@ -123,7 +133,7 @@ extension RequestExt on Request {
     return const NetworkService().get(
       this,
       parser,
-      listener: listener,
+      uploadListener: listener,
       cancellationToken: cancellationToken,
     );
   }
@@ -136,7 +146,7 @@ extension RequestExt on Request {
     return const NetworkService().getList(
       this,
       parser,
-      listener: listener,
+      uploadListener: listener,
       cancellationToken: cancellationToken,
     );
   }
@@ -147,7 +157,7 @@ extension RequestExt on Request {
   }) {
     return const NetworkService().getStringList(
       this,
-      listener: listener,
+      uploadListener: listener,
       cancellationToken: cancellationToken,
     );
   }
