@@ -7,6 +7,7 @@ import 'package:cancellation/cancellation.dart';
 import "copy_stream_listener.dart";
 import "data_parser.dart";
 import 'debug.dart';
+import 'http_headers_response.dart';
 import 'request.dart';
 import 'response_data.dart';
 import 'utilities.dart';
@@ -40,6 +41,7 @@ class _ByteSink implements Sink<List<int>> {
 extension RepositoryExt on Repository {
   Future<ResponseData> getData(
     Request request, {
+    HttpHeadersResponse? response,
     CopyStreamListener? listener,
     CancellationToken cancellationToken = CancellationToken.neverCancel,
   }) async {
@@ -47,7 +49,10 @@ extension RepositoryExt on Repository {
     try {
       final contentType = await download(
         request,
-        (_) => byteSink,
+        (connection) {
+          response?.set(connection);
+          return byteSink;
+        },
         uploadListener: listener,
         cancellationToken: cancellationToken,
       );
@@ -60,11 +65,13 @@ extension RepositoryExt on Repository {
 
   Future<String> getString(
     Request request, {
+    HttpHeadersResponse? response,
     CopyStreamListener? listener,
     CancellationToken cancellationToken = CancellationToken.neverCancel,
   }) async {
     final body = await getData(
       request,
+      response: response,
       listener: listener,
       cancellationToken: cancellationToken,
     );
@@ -72,7 +79,7 @@ extension RepositoryExt on Repository {
     final bodyString = body.getContentEncoding().decode(body.data);
 
     assert(() {
-      if (enableLog) {
+      if (enableLog && request.debugConfig.isLogEnabled) {
         print("Response: $bodyString");
       }
       return true;
@@ -84,54 +91,60 @@ extension RepositoryExt on Repository {
   Future<T> get<T>(
     Request request,
     DataParser<T> parser, {
+    HttpHeadersResponse? response,
     CopyStreamListener? listener,
     CancellationToken cancellationToken = CancellationToken.neverCancel,
   }) async {
-    final response = await getString(
+    final s = await getString(
       request,
       listener: listener,
+      response: response,
       cancellationToken: cancellationToken,
     );
     cancellationToken.throwIfCancelled();
-    if (response.isEmpty) {
+    if (s.isEmpty) {
       throw StateError("empty response");
     }
-    return parser.parseObject(response);
+    return parser.parseObject(s);
   }
 
   Future<List<T>> getList<T>(
     Request request,
     DataParser<T> parser, {
+    HttpHeadersResponse? response,
     CopyStreamListener? listener,
     CancellationToken cancellationToken = CancellationToken.neverCancel,
   }) async {
-    final response = await getString(
+    final s = await getString(
       request,
+      response: response,
       listener: listener,
       cancellationToken: cancellationToken,
     );
     cancellationToken.throwIfCancelled();
-    if (response.isEmpty) {
+    if (s.isEmpty) {
       return <T>[];
     }
-    return parser.parseList(response);
+    return parser.parseList(s);
   }
 
   Future<List<String>> getStringList(
     Request request, {
+    HttpHeadersResponse? response,
     CopyStreamListener? listener,
     CancellationToken cancellationToken = CancellationToken.neverCancel,
   }) async {
-    final response = await getString(
+    final s = await getString(
       request,
       listener: listener,
+      response: response,
       cancellationToken: cancellationToken,
     );
     cancellationToken.throwIfCancelled();
-    if (response.isEmpty) {
+    if (s.isEmpty) {
       return const [];
     }
-    final dynamic array = json.decode(response);
+    final dynamic array = json.decode(s);
     if (array is List) {
       return array.map((e) => e.toString()).toList();
     } else {
@@ -142,12 +155,16 @@ extension RepositoryExt on Repository {
   Future<void> saveToFile(
     Request request,
     File file, {
+    HttpHeadersResponse? response,
     CopyStreamListener? listener,
     CancellationToken cancellationToken = CancellationToken.neverCancel,
   }) {
     return download(
       request,
-      (_) => file.openWrite(mode: FileMode.writeOnly),
+      (connection) {
+        response?.set(connection);
+        return file.openWrite(mode: FileMode.writeOnly);
+      },
       listener: listener,
       cancellationToken: cancellationToken,
     );
@@ -156,16 +173,19 @@ extension RepositoryExt on Repository {
   Future<File> saveToDirectory(
     Request request,
     Directory directory, {
+    HttpHeadersResponse? response,
     CopyStreamListener? listener,
     CancellationToken cancellationToken = CancellationToken.neverCancel,
   }) async {
     late final File file;
     await download(
       request,
-      (response) {
-        final fileName =
-            response.headers.value("content-disposition")?.extractFileName() ??
-                "unknown";
+      (connection) {
+        response?.set(connection);
+        final fileName = connection.headers
+                .value("content-disposition")
+                ?.extractFileName() ??
+            "unknown";
         file = File("${directory.path}/$fileName");
         return file.openWrite(mode: FileMode.writeOnly);
       },

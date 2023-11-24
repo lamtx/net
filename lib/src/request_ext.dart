@@ -4,6 +4,7 @@ import 'package:cancellation/cancellation.dart';
 
 import 'copy_stream_listener.dart';
 import 'data_parser.dart';
+import 'http_headers_response.dart';
 import 'network_service.dart';
 import 'repository.dart';
 import 'request.dart';
@@ -102,6 +103,7 @@ extension RequestExt on Request {
   }
 
   Future<String> getString({
+    HttpHeadersResponse? response,
     CopyStreamListener? listener,
     CancellationToken cancellationToken = CancellationToken.neverCancel,
   }) {
@@ -114,6 +116,7 @@ extension RequestExt on Request {
 
   Future<T> get<T>(
     DataParser<T> parser, {
+    HttpHeadersResponse? response,
     CopyStreamListener? listener,
     CancellationToken cancellationToken = CancellationToken.neverCancel,
   }) {

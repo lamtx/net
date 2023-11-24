@@ -13,7 +13,6 @@ final class RequestBuilder {
   Map<String, Object?> _params = const {};
   final Map<String, String> _headers = {};
   Credentials? _credentials;
-  Map<String, String> _responseHeaders = const {};
 
   Credentials? get credentials => _credentials;
 
@@ -52,11 +51,6 @@ final class RequestBuilder {
     return this;
   }
 
-  RequestBuilder responseHeaders(Map<String, String> headers) {
-    _responseHeaders = headers;
-    return this;
-  }
-
   Request build() => Request(
         url: _url,
         method: _method,
@@ -64,6 +58,5 @@ final class RequestBuilder {
         params: _params,
         headers: _headers,
         credentials: _credentials,
-        responseHeaders: _responseHeaders,
       );
 }
