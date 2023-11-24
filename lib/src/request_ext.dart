@@ -114,12 +114,12 @@ extension RequestExt on Request {
 
   Future<String> getString({
     HttpHeadersResponse? response,
-    CopyStreamListener? listener,
+    CopyStreamListener? uploadListener,
     CancellationToken cancellationToken = CancellationToken.neverCancel,
   }) {
     return const NetworkService().getString(
       this,
-      uploadListener: listener,
+      uploadListener: uploadListener,
       cancellationToken: cancellationToken,
     );
   }
@@ -127,37 +127,37 @@ extension RequestExt on Request {
   Future<T> get<T>(
     DataParser<T> parser, {
     HttpHeadersResponse? response,
-    CopyStreamListener? listener,
+    CopyStreamListener? uploadListener,
     CancellationToken cancellationToken = CancellationToken.neverCancel,
   }) {
     return const NetworkService().get(
       this,
       parser,
-      uploadListener: listener,
+      uploadListener: uploadListener,
       cancellationToken: cancellationToken,
     );
   }
 
   Future<List<T>> getList<T>(
     DataParser<T> parser, {
-    CopyStreamListener? listener,
+    CopyStreamListener? uploadListener,
     CancellationToken cancellationToken = CancellationToken.neverCancel,
   }) {
     return const NetworkService().getList(
       this,
       parser,
-      uploadListener: listener,
+      uploadListener: uploadListener,
       cancellationToken: cancellationToken,
     );
   }
 
   Future<List<String>> getStringList({
-    CopyStreamListener? listener,
+    CopyStreamListener? uploadListener,
     CancellationToken cancellationToken = CancellationToken.neverCancel,
   }) {
     return const NetworkService().getStringList(
       this,
-      uploadListener: listener,
+      uploadListener: uploadListener,
       cancellationToken: cancellationToken,
     );
   }
