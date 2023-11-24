@@ -43,6 +43,7 @@ extension RepositoryExt on Repository {
     Request request, {
     HttpHeadersResponse? response,
     CopyStreamListener? uploadListener,
+    CopyStreamListener? listener,
     CancellationToken cancellationToken = CancellationToken.neverCancel,
   }) async {
     final byteSink = _ByteSink();
@@ -54,6 +55,7 @@ extension RepositoryExt on Repository {
           return byteSink;
         },
         uploadListener: uploadListener,
+        listener: listener,
         cancellationToken: cancellationToken,
       );
       cancellationToken.throwIfCancelled();
