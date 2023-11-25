@@ -35,7 +35,8 @@ class NetworkService implements Repository {
       return true;
     }());
     cancellationToken.throwIfCancelled();
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200 &&
+        !request.options.acceptedStatusCode.contains(response.statusCode)) {
       final body = await response.readAll().asCancellable(cancellationToken);
       final bodyString = response.getContentEncoding().decode(body);
       assert(() {
