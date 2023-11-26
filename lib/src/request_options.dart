@@ -8,4 +8,6 @@ final class RequestOptions {
 
   /// 200 is always accepted.
   final Set<int> acceptedStatusCode;
+
+  static const disableLog = RequestOptions(isLogEnabled: false);
 }
