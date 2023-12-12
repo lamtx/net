@@ -66,14 +66,14 @@ class NetworkService implements Repository {
           listener?.call(count, length, false);
         }
       },
-      onDone: () {
+      onDone: () async {
         listener?.call(count, length, true);
-        sink.close();
+        await sink.safeClose();
         completer.complete(contentType);
       },
       // ignore: avoid_types_on_closure_parameters
-      onError: (Object e) {
-        sink.close();
+      onError: (Object e) async {
+        await sink.safeClose();
         completer.completeError(e);
       },
       cancelOnError: true,
@@ -148,6 +148,16 @@ class NetworkService implements Repository {
       return request.addStream(content);
     } else {
       return content.copyTo(request, listener, body.length, cancellationToken);
+    }
+  }
+}
+
+extension<T> on Sink<T> {
+  Future<void> safeClose() async {
+    if (this is StreamSink<T>) {
+      await (this as StreamSink<T>).close();
+    } else {
+      close();
     }
   }
 }
