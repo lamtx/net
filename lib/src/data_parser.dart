@@ -4,6 +4,9 @@ import "json_reader.dart";
 
 typedef DataParser<T> = T Function(JsonReader jsonReader);
 
+/// Support the generated code from package json
+typedef JsonObjectFactory<T> = T Function(Map<String, Object?> json);
+
 extension ParseData<T> on DataParser<T> {
   T parseJson(Map<dynamic, dynamic> json) {
     return this(JsonReader(json));
@@ -40,5 +43,16 @@ extension ParseData<T> on DataParser<T> {
         .whereType<Map<dynamic, dynamic>>()
         .map((e) => this(JsonReader(e)))
         .toList();
+  }
+}
+
+extension JsonToObject<T> on JsonObjectFactory<T> {
+  T parseObject(String s) {
+    final dynamic map = json.decode(s);
+    if (map is Map) {
+      return this(map.cast());
+    } else {
+      throw Exception("The provided json is not a map.");
+    }
   }
 }

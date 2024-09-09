@@ -110,6 +110,26 @@ extension RepositoryExt on Repository {
     return parser.parseObject(s);
   }
 
+  Future<T> getJson<T>(
+    Request request,
+    JsonObjectFactory<T> fromJson, {
+    HttpHeadersResponse? response,
+    CopyStreamListener? uploadListener,
+    CancellationToken cancellationToken = CancellationToken.neverCancel,
+  }) async {
+    final s = await getString(
+      request,
+      uploadListener: uploadListener,
+      response: response,
+      cancellationToken: cancellationToken,
+    );
+    cancellationToken.throwIfCancelled();
+    if (s.isEmpty) {
+      throw StateError("empty response");
+    }
+    return fromJson.parseObject(s);
+  }
+
   Future<List<T>> getList<T>(
     Request request,
     DataParser<T> parser, {

@@ -147,6 +147,20 @@ extension RequestExt on Request {
         cancellationToken: cancellationToken,
       );
 
+  Future<T> getJson<T>(
+    JsonObjectFactory<T> fromJson, {
+    HttpHeadersResponse? response,
+    CopyStreamListener? uploadListener,
+    CancellationToken cancellationToken = CancellationToken.neverCancel,
+  }) =>
+      const NetworkService().getJson(
+        this,
+        fromJson,
+        response: response,
+        uploadListener: uploadListener,
+        cancellationToken: cancellationToken,
+      );
+
   Future<List<T>> getList<T>(
     DataParser<T> parser, {
     HttpHeadersResponse? response,
