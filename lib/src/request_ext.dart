@@ -39,6 +39,20 @@ extension ServiceBuilderExt on RequestBuilder {
         cancellationToken: cancellationToken,
       );
 
+  Future<T> getJson<T>(
+    JsonObjectFactory<T> fromJson, {
+    HttpHeadersResponse? response,
+    CopyStreamListener? uploadListener,
+    CancellationToken cancellationToken = CancellationToken.neverCancel,
+  }) =>
+      const NetworkService().getJson(
+        build(),
+        fromJson,
+        response: response,
+        uploadListener: uploadListener,
+        cancellationToken: cancellationToken,
+      );
+
   Future<List<T>> getList<T>(
     DataParser<T> parser, {
     HttpHeadersResponse? response,
@@ -170,6 +184,20 @@ extension RequestExt on Request {
       const NetworkService().getList(
         this,
         parser,
+        response: response,
+        uploadListener: uploadListener,
+        cancellationToken: cancellationToken,
+      );
+
+  Future<List<T>> getJsonList<T>(
+    JsonObjectFactory<T> fromJson, {
+    HttpHeadersResponse? response,
+    CopyStreamListener? uploadListener,
+    CancellationToken cancellationToken = CancellationToken.neverCancel,
+  }) =>
+      const NetworkService().getJsonList(
+        this,
+        fromJson,
         response: response,
         uploadListener: uploadListener,
         cancellationToken: cancellationToken,
