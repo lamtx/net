@@ -67,6 +67,20 @@ extension ServiceBuilderExt on RequestBuilder {
         cancellationToken: cancellationToken,
       );
 
+  Future<List<T>> getJsonList<T>(
+    JsonObjectFactory<T> fromJson, {
+    HttpHeadersResponse? response,
+    CopyStreamListener? uploadListener,
+    CancellationToken cancellationToken = CancellationToken.neverCancel,
+  }) =>
+      const NetworkService().getJsonList(
+        build(),
+        fromJson,
+        response: response,
+        uploadListener: uploadListener,
+        cancellationToken: cancellationToken,
+      );
+
   Future<void> download(
     Sink<List<int>> Function(HttpClientResponse) sinkFactory, {
     CopyStreamListener? listener,
