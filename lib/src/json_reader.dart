@@ -155,7 +155,7 @@ final class JsonReader {
   List<bool> readBoolList(String name) {
     final array = _get(name);
     if (array is List) {
-      return array.map(_parseBool).toList(growable: false);
+      return array.map((e) => _parseBool(e) ?? false).toList(growable: false);
     }
     return const [];
   }
