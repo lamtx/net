@@ -72,23 +72,28 @@ final class JsonReader {
     return null;
   }
 
-  bool _parseBool(Object? obj) {
+  bool? _parseBool(Object? obj) {
     if (obj == null) {
-      return false;
+      return null;
     }
     if (obj is bool) {
       return obj;
     }
     if (obj is String) {
-      return "true" == obj;
+      return switch (obj) {
+        "true" => true,
+        "false" => false,
+        _ => null,
+      };
     }
-    return false;
+    return null;
   }
 
   bool readBool(String name) {
-    final obj = _get(name);
-    return _parseBool(obj);
+    return _parseBool(_get(name)) ?? false;
   }
+
+  bool? readNullableBool(String name) => _parseBool(_get(name));
 
   DateTime? readDate(String name) {
     final s = readString(name);
