@@ -20,4 +20,5 @@ export 'src/request_ext.dart';
 export 'src/request_options.dart';
 export 'src/response_data.dart';
 export 'src/string_body.dart';
+export 'src/to_json.dart';
 export 'src/utilities.dart' show StreamExt;
