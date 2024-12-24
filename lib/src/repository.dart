@@ -3,13 +3,10 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:cancellation/cancellation.dart';
+import 'package:path/path.dart';
 
-import "copy_stream_listener.dart";
-import "data_parser.dart";
-import 'debug.dart';
+import '../net.dart';
 import 'http_headers_response.dart';
-import 'request.dart';
-import 'response_data.dart';
 import 'utilities.dart';
 
 abstract interface class Repository {
@@ -227,8 +224,8 @@ extension RepositoryExt on Repository {
         final fileName = connection.headers
                 .value("content-disposition")
                 ?.extractFileName() ??
-            "unknown";
-        file = File("${directory.path}/$fileName");
+            basename(Uri.parse(request.fullUrl).path);
+        file = File(join(directory.path, fileName));
         return file.openWrite(mode: FileMode.writeOnly);
       },
       listener: listener,
