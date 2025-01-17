@@ -4,7 +4,7 @@ import "utilities.dart";
 
 /// Marker for classes that are annotated by JsonDecodable
 abstract interface class ToJson {
-  Map<String, Object?> toJson();
+  Object? toJson();
 }
 
 extension SerializableJsonObject on ToJson {
@@ -13,6 +13,13 @@ extension SerializableJsonObject on ToJson {
   }
 
   String serializeAsUrlEncoded() {
-    return toUrlEncoded(toJson());
+    final json = toJson();
+    if (json is Map<String, Object?>) {
+      return toUrlEncoded(json);
+    } else {
+      throw ArgumentError(
+        "The `toJson` method of $runtimeType has to return to `Map<String, Object?>`",
+      );
+    }
   }
 }

@@ -1,5 +1,6 @@
 import "dart:convert" as convert;
 
+import '../net.dart';
 import 'utilities.dart';
 
 abstract interface class JsonObject {
@@ -29,7 +30,10 @@ Object? _normalize(Object? value) {
   }
 
   if (value is JsonObject) {
-    return _normalize(value.describeContent());
+    return value.toJson();
+  }
+  if (value is ToJson) {
+    return value.toJson();
   }
 
   if (value is Enum) {

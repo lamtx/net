@@ -53,6 +53,11 @@ String toUrlEncoded(Map<String, Object?> params) {
     if (value == null) {
       return;
     }
+    if (value is ToJson) {
+      value = value.toJson();
+    } else if (value is JsonObject) {
+      value = value.toJson();
+    }
     String sValue;
     if (value is String) {
       if (value.isEmpty) {
