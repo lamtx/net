@@ -238,12 +238,17 @@ extension RepositoryExt on Repository {
 
 extension on String {
   String? extractFileName() {
-    const start = 'filename="';
+    const start = 'filename=';
     final index = indexOf(start);
     if (index != -1) {
-      final endIndex = indexOf('"', index + start.length);
-      if (endIndex != -1) {
-        return substring(index + start.length, endIndex);
+      final s = substring(index + start.length);
+      if (s.startsWith('"')) {
+        final endIndex = s.indexOf('"', 1);
+        if (endIndex != -1) {
+          return s.substring(1, endIndex);
+        }
+      } else {
+        return s;
       }
     }
     return null;
