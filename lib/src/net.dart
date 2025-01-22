@@ -264,14 +264,12 @@ extension OkResponseExt on OkResponse {
     return body;
   }
 
-  Future<T> json<T>(JsonObjectFactory<T> fromJson,
-      {Encoding defaultCharset = utf8}) async {
-    return fromJson.parseObject(await text(defaultCharset: defaultCharset));
+  Future<T> json<T>(JsonObjectFactory<T> fromJson) async {
+    return fromJson.parseObject(await text());
   }
 
-  Future<List<T>> jsonList<T>(JsonObjectFactory<T> fromJson,
-      {Encoding defaultCharset = utf8}) async {
-    return fromJson.parseList(await text(defaultCharset: defaultCharset));
+  Future<List<T>> jsonList<T>(JsonObjectFactory<T> fromJson) async {
+    return fromJson.parseList(await text());
   }
 
   Future<File> saveToDirectory(Directory directory,
