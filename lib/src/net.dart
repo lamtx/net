@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:ext/ext.dart';
@@ -28,6 +29,9 @@ final class StringBody implements Body {
 
   final String content;
   final ContentType contentType;
+
+  @override
+  String toString() => content;
 }
 
 abstract interface class Credentials {
@@ -163,7 +167,13 @@ extension RequestBuilderExt on RequestBuilder {
     final request = Request(method, _uri);
     request.headers.addAll(_headers);
     _credentials?.handleRequest(request.headers);
+    assert(() {
+      print("$method: $_uri");
+      print("Headers: ${request.headers}");
+      return true;
+    }());
     if (_body case final body?) {
+      assert(log("Body", body.toString()));
       switch (body) {
         case StringBody():
           request.body = body.content;
@@ -230,44 +240,47 @@ final class OkResponse {
 extension OkResponseExt on OkResponse {
   Future<StreamedResponse> _responseOrThrows() async {
     final response = await _responseFuture;
+    assert(log("Status", response.statusCode.toString()));
     if (_acceptedStatus.isEmpty ||
         _acceptedStatus.contains(response.statusCode)) {
       return response;
     } else {
       final body = (await Response.fromStream(response)).body;
+      assert(log("Response", body));
       throw HttpStatusException(response.statusCode, body);
     }
   }
 
-  Future<String> text() async {
+  Future<String> text({Encoding defaultCharset = utf8}) async {
     final response = await _responseOrThrows();
-    return (await Response.fromStream(response)).body;
+    final charset = response.contentType?.parameters["charset"];
+    final encoding = charset == null
+        ? (Encoding.getByName(charset) ??
+            (throw Exception("Unknown charset $charset")))
+        : defaultCharset;
+    final body =
+        encoding.decode((await Response.fromStream(response)).bodyBytes);
+    assert(log("Response", body));
+    return body;
   }
 
-  Future<T> json<T>(JsonObjectFactory<T> fromJson) async {
-    return fromJson.parseObject(await text());
+  Future<T> json<T>(JsonObjectFactory<T> fromJson,
+      {Encoding defaultCharset = utf8}) async {
+    return fromJson.parseObject(await text(defaultCharset: defaultCharset));
   }
 
-  Future<List<T>> jsonList<T>(JsonObjectFactory<T> fromJson) async {
-    return fromJson.parseList(await text());
+  Future<List<T>> jsonList<T>(JsonObjectFactory<T> fromJson,
+      {Encoding defaultCharset = utf8}) async {
+    return fromJson.parseList(await text(defaultCharset: defaultCharset));
   }
 
-  Future<File> saveToDirectory(Directory directory) async {
+  Future<File> saveToDirectory(Directory directory,
+      [String? pathToGetFileName]) async {
     final response = await _responseOrThrows();
-    final contentDisposition = response.headers[HttpHeaders.contentDisposition];
-    final String fileName;
-    if (contentDisposition == null) {
-      // FIXME: extract file name from request URL
-      fileName = "file";
-    } else {
-      MediaType? mimeType;
-      try {
-        mimeType = MediaType.parse(contentDisposition);
-      } on FormatException catch (_) {
-        mimeType = null;
-      }
-      fileName = mimeType?.parameters["filename"] ?? "file";
-    }
+    final contentDisposition = response.contentDisposition;
+    final fileName = contentDisposition?.parameters["filename"] ??
+        (pathToGetFileName == null ? "file" : basename(pathToGetFileName));
+
     final file = File(join(directory.path, fileName));
     final sink = file.openWrite();
     try {
@@ -296,4 +309,23 @@ class _MapToJson implements ToJson {
 
   @override
   Object? toJson() => _map;
+}
+
+extension ResponseExt on BaseResponse {
+  MediaType? _tryParse(String? mediaType) {
+    if (mediaType == null) {
+      return null;
+    }
+    try {
+      return MediaType.parse(mediaType);
+    } on FormatException catch (_) {
+      return null;
+    }
+  }
+
+  MediaType? get contentType =>
+      _tryParse(headers[HttpHeaders.contentTypeHeader]);
+
+  MediaType? get contentDisposition =>
+      _tryParse(headers[HttpHeaders.contentDisposition]);
 }
