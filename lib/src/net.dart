@@ -254,7 +254,7 @@ extension OkResponseExt on OkResponse {
   Future<String> text({Encoding defaultCharset = utf8}) async {
     final response = await _responseOrThrows();
     final charset = response.contentType?.parameters["charset"];
-    final encoding = charset == null
+    final encoding = charset != null
         ? (Encoding.getByName(charset) ??
             (throw Exception("Unknown charset $charset")))
         : defaultCharset;
