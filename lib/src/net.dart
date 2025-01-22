@@ -1,10 +1,9 @@
 import 'dart:io';
 
+import 'package:ext/ext.dart';
 import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:path/path.dart';
-
-import 'json.dart';
 
 abstract final class HttpMethod {
   static const get = "GET";
