@@ -215,15 +215,6 @@ extension RequestBuilderExt on RequestBuilder {
       send(client: client, method: HttpMethod.delete);
 }
 
-extension BaseRequestExt on BaseRequest {
-  /// Sent this request to [NetworkService] instance.
-  Future<StreamedResponse> send({
-    Client Function() client = NetworkService.getClient,
-  }) {
-    return client().send(this);
-  }
-}
-
 extension FutureStreamedResponseExt on Future<StreamedResponse> {
   OkResponse statusOk([Set<int> acceptedStatus = const {200}]) {
     return OkResponse(this, acceptedStatus);
@@ -272,12 +263,12 @@ extension OkResponseExt on OkResponse {
     return fromJson.parseList(await text());
   }
 
-  Future<File> saveToDirectory(Directory directory,
-      [String? pathToGetFileName]) async {
+  Future<File> saveToDirectory(Directory directory) async {
     final response = await _responseOrThrows();
     final contentDisposition = response.contentDisposition;
     final fileName = contentDisposition?.parameters["filename"] ??
-        (pathToGetFileName == null ? "file" : basename(pathToGetFileName));
+        response.request?.url.pathSegments.lastOrNull ??
+        "file";
 
     final file = File(join(directory.path, fileName));
     final sink = file.openWrite();
