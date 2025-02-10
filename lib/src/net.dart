@@ -111,6 +111,10 @@ final class RequestBuilder {
     return body(StringBody.json(json));
   }
 
+  RequestBuilder jsonObjectBody(ToJson json) {
+    return body(StringBody(json.serializeAsJson(), ContentType.json));
+  }
+
   RequestBuilder credentials(Credentials? credentials) {
     _credentials = credentials;
     return this;
@@ -149,6 +153,7 @@ extension UriBuilderExt on UriBuilder {
     Credentials? credentials,
   }) {
     final request = Request(method, build());
+    print("$method: ${request.url}");
     return client().send(request);
   }
 
