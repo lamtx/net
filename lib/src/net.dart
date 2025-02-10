@@ -153,7 +153,7 @@ extension UriBuilderExt on UriBuilder {
     Credentials? credentials,
   }) {
     final request = Request(method, build());
-    print("$method: ${request.url}");
+    assert(log("$method: ${request.url}"));
     return client().send(request);
   }
 
