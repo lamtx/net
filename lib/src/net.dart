@@ -111,6 +111,10 @@ final class RequestBuilder {
     return body(StringBody.json(json));
   }
 
+  RequestBuilder jsonObjectBody(ToJson json) {
+    return body(StringBody(json.serializeAsJson(), ContentType.json));
+  }
+
   RequestBuilder credentials(Credentials? credentials) {
     _credentials = credentials;
     return this;
