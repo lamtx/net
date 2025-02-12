@@ -179,30 +179,35 @@ extension RequestBuilderExt on RequestBuilder {
     String method = HttpMethod.get,
   }) {
     final BaseRequest request;
-    if (_body case final body?) {
-      assert(log("Body", body.toString()));
-      switch (body) {
-        case StringBody():
-          request = Request(method, _uri);
-          request as Request; //wtf?
-          request.body = body.content;
-          request.headers[HttpHeaders.contentTypeHeader] =
-              body.contentType.mimeType;
-        case FileBody():
-          request = StreamedRequest(method, _uri);
-          request as StreamedRequest; // wtf
-          request.headers[HttpHeaders.contentTypeHeader] =
-              ContentType.binary.mimeType;
-          request.sink.addStream(body.file.openRead());
-      }
-    } else {
-      request = Request(method, _uri);
+    switch (_body) {
+      case null:
+        request = Request(method, _uri);
+      case StringBody(:final content, :final contentType):
+        request = Request(method, _uri)
+          ..body = content
+          ..headers[HttpHeaders.contentTypeHeader] = contentType.mimeType;
+      case FileBody(:final file):
+        final streamedRequest = StreamedRequest(method, _uri)
+          ..headers[HttpHeaders.contentTypeHeader] = ContentType.binary.mimeType
+          ..contentLength = file.lengthSync();
+        file.openRead().listen(
+          streamedRequest.sink.add,
+          onDone: () {
+            streamedRequest.sink.close();
+          },
+          onError: (e) {
+            streamedRequest.sink.addError(e);
+          },
+          cancelOnError: true,
+        );
+        request = streamedRequest;
     }
     request.headers.addAll(_headers);
     _credentials?.handleRequest(request.headers);
     assert(() {
       print("$method: $_uri");
       print("Headers: ${request.headers}");
+      print("Body: $_body");
       return true;
     }());
 
@@ -255,6 +260,7 @@ final class OkResponse {
 
 extension OkResponseExt on OkResponse {
   Future<StreamedResponse> _responseOrThrows() async {
+    print("XXXX: checking");
     final response = await _responseFuture;
     assert(log("Status", response.statusCode.toString()));
     if (_acceptedStatus.isEmpty ||
