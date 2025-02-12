@@ -34,6 +34,15 @@ final class StringBody implements Body {
   String toString() => content;
 }
 
+final class FileBody implements Body {
+  const FileBody(this.file);
+
+  final File file;
+
+  @override
+  String toString() => "File `${file.path}`";
+}
+
 abstract interface class Credentials {
   void handleRequest(Map<String, String> headers);
 }
@@ -169,7 +178,26 @@ extension RequestBuilderExt on RequestBuilder {
     Client Function() client = NetworkService.getClient,
     String method = HttpMethod.get,
   }) {
-    final request = Request(method, _uri);
+    final BaseRequest request;
+    if (_body case final body?) {
+      assert(log("Body", body.toString()));
+      switch (body) {
+        case StringBody():
+          request = Request(method, _uri);
+          request as Request; //wtf?
+          request.body = body.content;
+          request.headers[HttpHeaders.contentTypeHeader] =
+              body.contentType.mimeType;
+        case FileBody():
+          request = StreamedRequest(method, _uri);
+          request as StreamedRequest; // wtf
+          request.headers[HttpHeaders.contentTypeHeader] =
+              ContentType.binary.mimeType;
+          request.sink.addStream(body.file.openRead());
+      }
+    } else {
+      request = Request(method, _uri);
+    }
     request.headers.addAll(_headers);
     _credentials?.handleRequest(request.headers);
     assert(() {
@@ -177,15 +205,7 @@ extension RequestBuilderExt on RequestBuilder {
       print("Headers: ${request.headers}");
       return true;
     }());
-    if (_body case final body?) {
-      assert(log("Body", body.toString()));
-      switch (body) {
-        case StringBody():
-          request.body = body.content;
-          request.headers[HttpHeaders.contentTypeHeader] =
-              body.contentType.toString();
-      }
-    }
+
     return client().send(request);
   }
 
